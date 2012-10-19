@@ -1,0 +1,20 @@
+<resources>
+
+    <string name="app_name">Random Sequence Generator</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_rsg_main">Rsg_main</string>
+    <string name="binary_radio">Binary</string>
+    <string name="hex_radio">Hexadecimal</string>
+    <string name="class_radio">Class</string>
+    <string name="manual_radio">Manual</string>
+    <string name="range_digit">[0&#8211;9]</string>
+    <string name="range_lowercase">[a&#8211;z]</string>
+    <string name="range_uppercase">[A&#8211;Z]</string>
+    <string name="range_special">[(,),/,\,#,@&#8230;]</string>
+    <string name="suggestion_manual">abcd078[]</string>
+    <string name="button_create">Create</string>
+    <color name="background">#333</color>
+    <color name="text-color">#fff</color>
+    <dimen name="margin_left_radio">15px</dimen>
+
+</resources>
