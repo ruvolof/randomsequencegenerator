@@ -95,16 +95,19 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    		default:
     	    			break;
     	    	}
-    	  
+    	    	
     	    	int chars_last_index = chars.length() - 1;
-    	    	TextView length_textview = (TextView)findViewById(R.id.string_length);
-    	    	String length_as_string = length_textview.getText().toString();
-    	    	int selected_length = Integer.parseInt(length_as_string, 10);
-    	    	for (int i = selected_length; i > 0; i--) {
-    	    		long random = Math.round(Math.random()*chars_last_index);
-    	    		int index = (int) random;
-    	    		String to_concat = String.valueOf(chars.charAt(index));
-    	    		result = result.concat(to_concat);
+    	    	
+    	    	if (chars_last_index >= 0) {
+	    	    	TextView length_textview = (TextView)findViewById(R.id.string_length);
+	    	    	String length_as_string = length_textview.getText().toString();
+	    	    	int selected_length = Integer.parseInt(length_as_string, 10);
+	    	    	for (int i = selected_length; i > 0; i--) {
+	    	    		long random = Math.round(Math.random()*chars_last_index);
+	    	    		int index = (int) random;
+	    	    		String to_concat = String.valueOf(chars.charAt(index));
+	    	    		result = result.concat(to_concat);
+	    	    	}
     	    	}
     	    	
     	    	TextView output = (TextView)findViewById(R.id.output_textview);
