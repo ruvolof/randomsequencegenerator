@@ -9,14 +9,12 @@
 	        android:id="@+id/radio_group"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content" 
-	        android:orientation="horizontal" >
+	        android:orientation="vertical" >
             
 	        <RadioButton
 	            android:id="@+id/binary_radio"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_gravity="left"
-	            android:layout_weight="1"
+	            android:layout_height="34dp"
 	            android:checked="true"
 	            android:text="@string/binary_radio"
 	            android:textColor="@color/text_color" />
@@ -24,25 +22,21 @@
 	        <RadioButton
 	            android:id="@+id/hex_radio"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_gravity="right"
-	            android:layout_weight="1"
+	            android:layout_height="34dp"
 	            android:text="@string/hex_radio"
 	            android:textColor="@color/text_color" />
 	
 	        <RadioButton
 	            android:id="@+id/class_radio"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="1"
+	            android:layout_height="34dp"
 	            android:text="@string/class_radio"
 	            android:textColor="@color/text_color" />
 	
 	        <RadioButton
 	            android:id="@+id/manual_radio"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="1"
+	            android:layout_height="34dp"
 	            android:text="@string/manual_radio"
 	            android:textColor="@color/text_color" />
    	
