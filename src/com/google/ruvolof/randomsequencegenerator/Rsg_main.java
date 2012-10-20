@@ -52,7 +52,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	int clicked = v.getId();
     	switch (clicked) {
     		case R.id.button_create:
-    	    	String chars = "0";
+    	    	String chars = "";
     	    	String result = "";
     			
     			RadioGroup rg = (RadioGroup)findViewById(R.id.radio_group);
