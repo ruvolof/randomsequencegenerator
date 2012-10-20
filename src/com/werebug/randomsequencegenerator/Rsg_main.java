@@ -2,6 +2,7 @@ package com.werebug.randomsequencegenerator;
 
 import com.werebug.randomsequencegenerator.R;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -58,7 +59,8 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	}
     }
     
-    public void onClick (View v) {
+    @SuppressWarnings("deprecation")
+	public void onClick (View v) {
     	int clicked = v.getId();
     	switch (clicked) {
     		case R.id.button_create:
@@ -131,9 +133,16 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	
     		case R.id.copy_button:
     			TextView random_sequence = (TextView)findViewById(R.id.output_textview);
-    			ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-    			ClipData clip = ClipData.newPlainText("rgs", random_sequence.getText());
-    			clipboard.setPrimaryClip(clip);
+    			int sdk = Build.VERSION.SDK_INT;
+    			if (sdk >= 11) {
+	    			ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	    			ClipData clip = ClipData.newPlainText("rgs", random_sequence.getText());
+	    			clipboard.setPrimaryClip(clip);
+    			}
+    			else {
+					android.text.ClipboardManager old_cbm = (android.text.ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+    				old_cbm.setText(random_sequence.getText());    				
+    			}
     			break;
     		
     		case R.id.send_button:
