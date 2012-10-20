@@ -11,6 +11,10 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 
 public class Rsg_main extends Activity implements OnClickListener, OnCheckedChangeListener {
 	
@@ -27,6 +31,10 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	this.manual_layout = (View)findViewById(R.id.manual_layout);
         Button create = (Button)findViewById(R.id.button_create);
         create.setOnClickListener(this);
+        Button copy = (Button)findViewById(R.id.copy_button);
+        copy.setOnClickListener(this);
+        Button send_to = (Button)findViewById(R.id.send_button);
+        send_to.setOnClickListener(this);
         RadioGroup rg = (RadioGroup)findViewById(R.id.radio_group);
         rg.setOnCheckedChangeListener(this);
     }
@@ -99,8 +107,10 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	}
     	    	
     	    	int chars_last_index = chars.length() - 1;
+    	    	View copy_send = (View)findViewById(R.id.copy_send);
     	    	
     	    	if (chars_last_index >= 0) {
+    	    		copy_send.setVisibility(View.VISIBLE);
 	    	    	TextView length_textview = (TextView)findViewById(R.id.string_length);
 	    	    	String length_as_string = length_textview.getText().toString();
 	    	    	int selected_length = Integer.parseInt(length_as_string, 10);
@@ -111,10 +121,29 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
 	    	    		result = result.concat(to_concat);
 	    	    	}
     	    	}
+    	    	else {
+    	    		copy_send.setVisibility(View.GONE);
+    	    	}
     	    	
     	    	TextView output = (TextView)findViewById(R.id.output_textview);
     	    	output.setText(result);
     	    	break;
+    	    	
+    		case R.id.copy_button:
+    			TextView random_sequence = (TextView)findViewById(R.id.output_textview);
+    			ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+    			ClipData clip = ClipData.newPlainText("rgs", random_sequence.getText());
+    			clipboard.setPrimaryClip(clip);
+    			break;
+    		
+    		case R.id.send_button:
+    			TextView sequence_to_send = (TextView)findViewById(R.id.output_textview);
+    			Intent intent = new Intent(Intent.ACTION_SEND);
+    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+    			intent.setType("text/plain");
+    			intent.putExtra(Intent.EXTRA_TEXT, sequence_to_send.getText());
+    			startActivity(Intent.createChooser(intent, getResources().getString(R.string.send_with)));
+    			break;
     	    
     	    default:
     	    	break;

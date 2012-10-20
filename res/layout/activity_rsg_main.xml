@@ -162,6 +162,33 @@
             android:text="@string/button_create" />
 
     </LinearLayout>
+    
+     <RelativeLayout
+        android:id="@+id/copy_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <Button
+            android:id="@+id/copy_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="77dp"
+            android:text="@string/copy" />
+
+        <Button
+            android:id="@+id/send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="59dp"
+            android:layout_toRightOf="@+id/copy_button"
+            android:text="@string/send_to" />
+        
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -180,7 +207,6 @@
             android:textColor="@color/text_color" />
 
     </RelativeLayout>
-
 
 
 </LinearLayout>
