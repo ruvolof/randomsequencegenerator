@@ -12,7 +12,7 @@ public final class R {
     }
     public static final class color {
         public static final int background=0x7f050000;
-        public static final int text-color=0x7f050001;
+        public static final int text_color=0x7f050001;
     }
     public static final class dimen {
         public static final int margin_left_radio=0x7f060000;
@@ -22,18 +22,24 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int button1=0x7f090009;
-        public static final int checkBox1=0x7f090003;
-        public static final int checkBox2=0x7f090004;
-        public static final int checkBox3=0x7f090005;
-        public static final int checkBox4=0x7f090006;
-        public static final int editText1=0x7f090008;
-        public static final int editText2=0x7f09000a;
-        public static final int menu_settings=0x7f09000b;
-        public static final int radioButton1=0x7f090000;
-        public static final int radioButton2=0x7f090001;
-        public static final int radioButton3=0x7f090002;
-        public static final int radioButton4=0x7f090007;
+        public static final int binary_radio=0x7f090001;
+        public static final int button_create=0x7f09000f;
+        public static final int class_radio=0x7f090003;
+        public static final int dlu_range=0x7f090005;
+        public static final int hex_radio=0x7f090002;
+        public static final int manual=0x7f09000c;
+        public static final int manual_layout=0x7f09000b;
+        public static final int manual_radio=0x7f090004;
+        public static final int menu_settings=0x7f090011;
+        public static final int output_textview=0x7f090010;
+        public static final int radio_group=0x7f090000;
+        public static final int range_digit=0x7f090006;
+        public static final int range_lowercase=0x7f090007;
+        public static final int range_special=0x7f09000a;
+        public static final int range_uppercase=0x7f090008;
+        public static final int s_range=0x7f090009;
+        public static final int string_length=0x7f09000e;
+        public static final int textView1=0x7f09000d;
     }
     public static final class layout {
         public static final int activity_rsg_main=0x7f030000;
@@ -46,6 +52,8 @@ public final class R {
         public static final int binary_radio=0x7f040003;
         public static final int button_create=0x7f04000c;
         public static final int class_radio=0x7f040005;
+        public static final int default_length=0x7f04000d;
+        public static final int default_length_label=0x7f04000e;
         public static final int hex_radio=0x7f040004;
         public static final int manual_radio=0x7f040006;
         public static final int menu_settings=0x7f040001;

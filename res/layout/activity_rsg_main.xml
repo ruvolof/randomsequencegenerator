@@ -4,112 +4,141 @@
     android:layout_height="fill_parent"
     android:background="@color/background"
     android:orientation="vertical" >
+    	    
+	    <RadioGroup
+	        android:id="@+id/radio_group"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" 
+	        android:orientation="horizontal" >
+            
+	        <RadioButton
+	            android:id="@+id/binary_radio"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="left"
+	            android:layout_weight="1"
+	            android:checked="true"
+	            android:text="@string/binary_radio"
+	            android:textColor="@color/text_color" />
+	
+	        <RadioButton
+	            android:id="@+id/hex_radio"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="right"
+	            android:layout_weight="1"
+	            android:text="@string/hex_radio"
+	            android:textColor="@color/text_color" />
+	
+	        <RadioButton
+	            android:id="@+id/class_radio"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:text="@string/class_radio"
+	            android:textColor="@color/text_color" />
+	
+	        <RadioButton
+	            android:id="@+id/manual_radio"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:text="@string/manual_radio"
+	            android:textColor="@color/text_color" />
+   	
+    	</RadioGroup>
 
     <LinearLayout
+        android:id="@+id/dlu_range"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <RadioButton
-            android:id="@+id/radioButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/binary_radio"
-            android:textColor="@color/text-color" />
-
-        <RadioButton
-            android:id="@+id/radioButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hex_radio"
-            android:textColor="@color/text-color" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <RadioButton
-            android:id="@+id/radioButton3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/class_radio"
-            android:textColor="@color/text-color" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:visibility="gone" >
 
         <CheckBox
-            android:id="@+id/checkBox1"
+            android:id="@+id/range_digit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin_left_radio"
             android:text="@string/range_digit"
-            android:textColor="@color/text-color" />
+            android:textColor="@color/text_color" />
 
         <CheckBox
-            android:id="@+id/checkBox2"
+            android:id="@+id/range_lowercase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin_left_radio"
             android:text="@string/range_lowercase"
-            android:textColor="@color/text-color" />
+            android:textColor="@color/text_color" />
 
         <CheckBox
-            android:id="@+id/checkBox3"
+            android:id="@+id/range_uppercase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin_left_radio"
             android:text="@string/range_uppercase"
-            android:textColor="@color/text-color" />
+            android:textColor="@color/text_color" />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/s_range"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
 
         <CheckBox
-            android:id="@+id/checkBox4"
+            android:id="@+id/range_special"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin_left_radio"
             android:text="@string/range_special"
-            android:textColor="@color/text-color" />
+            android:textColor="@color/text_color" />
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/manual_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <RadioButton
-            android:id="@+id/radioButton4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/manual_radio"
-            android:textColor="@color/text-color" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
 
         <EditText
-            android:id="@+id/editText1"
+            android:id="@+id/manual"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:inputType="text"
             android:hint="@string/suggestion_manual" >
 
             <requestFocus />
         </EditText>
 
     </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/default_length_label"
+            android:textColor="@color/text_color"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/string_length"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:text="@string/default_length" />
+        
+    </LinearLayout>
+    
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -117,7 +146,7 @@
         android:gravity="center" >
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/button_create"
             android:layout_width="252dp"
             android:layout_height="wrap_content"
             android:text="@string/button_create" />
@@ -129,9 +158,10 @@
         android:layout_height="match_parent" >
 
         <TextView
-            android:id="@+id/editText2"
+            android:id="@+id/output_textview"
             android:layout_width="0dip"
             android:layout_height="match_parent"
+            android:scrollHorizontally="true"
             android:layout_weight="1"
             android:background="@color/background"
             android:ems="10" />
