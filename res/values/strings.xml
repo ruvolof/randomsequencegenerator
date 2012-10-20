@@ -18,5 +18,6 @@
     <color name="background">#333</color>
     <color name="text_color">#fff</color>
     <dimen name="margin_left_radio">15px</dimen>
+    <dimen name="margin_top_rg">15px</dimen>
 
 </resources>

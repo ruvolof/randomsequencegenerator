@@ -1,14 +1,30 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical" >
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        
+        <com.google.ads.AdView android:id="@+id/adViewTop"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         ads:adUnitId="a150828e9794053"
+                         ads:adSize="BANNER"
+                         ads:testDevices="TEST_EMULATOR"
+                         ads:loadAdOnCreate="true" />
+     
+    </LinearLayout>
     	    
 	    <RadioGroup
 	        android:id="@+id/radio_group"
 	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" 
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="@dimen/margin_top_rg"
 	        android:orientation="vertical" >
             
 	        <RadioButton
@@ -164,5 +180,7 @@
             android:textColor="@color/text_color" />
 
     </RelativeLayout>
+
+
 
 </LinearLayout>

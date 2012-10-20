@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="lib" path="/home/francesco/Dropbox/bin/android-sdk-linux/extras/google/admob_ads_sdk/GoogleAdMobAdsSdk-6.1.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
