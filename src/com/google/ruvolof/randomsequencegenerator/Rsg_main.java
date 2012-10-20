@@ -108,7 +108,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	}
     	    	
     	    	TextView output = (TextView)findViewById(R.id.output_textview);
-    	    	output.setText(chars);
+    	    	output.setText(result);
     	    	break;
     	    
     	    default:
