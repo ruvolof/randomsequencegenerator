@@ -96,7 +96,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    				chars = chars.concat("QWERTYUIOPASDFGHJKLZXCVBNM");
     	    			}
     	    			if (special.isChecked()) {
-    	    				chars = chars.concat("$%&()=?@#<>_£[]*");
+    	    				chars = chars.concat(getResources().getString(R.string.range_special));
     	    			}
     	    			break;
     	    			
