@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -59,7 +60,8 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	}
     }
     
-    @SuppressWarnings("deprecation")
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
 	public void onClick (View v) {
     	int clicked = v.getId();
     	switch (clicked) {
@@ -94,7 +96,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    				chars = chars.concat("QWERTYUIOPASDFGHJKLZXCVBNM");
     	    			}
     	    			if (special.isChecked()) {
-    	    				chars = chars.concat("$%&/()=?@#<>_-£[]*");
+    	    				chars = chars.concat("$%&()=?@#<>_£[]*");
     	    			}
     	    			break;
     	    			

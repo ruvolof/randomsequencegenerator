@@ -10,7 +10,7 @@
     <string name="range_digit">[0&#8211;9]</string>
     <string name="range_lowercase">[a&#8211;z]</string>
     <string name="range_uppercase">[A&#8211;Z]</string>
-    <string name="range_special">[(,),/,\,#,@&#8230;]</string>
+    <string name="range_special">[$%&amp;()=?@#&lt;&gt;_£[]*]</string>
     <string name="suggestion_manual">abcd078[]</string>
     <string name="button_create">Create</string>
     <string name="default_length">32</string>
