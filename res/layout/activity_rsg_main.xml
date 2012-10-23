@@ -126,7 +126,6 @@
             android:inputType="text"
             android:hint="@string/suggestion_manual" >
 
-            <requestFocus />
         </EditText>
 
     </LinearLayout>
