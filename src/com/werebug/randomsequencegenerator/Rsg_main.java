@@ -20,16 +20,14 @@ import android.content.Intent;
 
 public class Rsg_main extends Activity implements OnClickListener, OnCheckedChangeListener {
 	
-	View range_layout_1;
-	View range_layout_2;
+	View range_layout;
 	View manual_layout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rsg_main);
-    	this.range_layout_1 = (View)findViewById(R.id.dlu_range);
-    	this.range_layout_2 = (View)findViewById(R.id.s_range);
+    	this.range_layout = (View)findViewById(R.id.class_range);
     	this.manual_layout = (View)findViewById(R.id.manual_layout);
         Button create = (Button)findViewById(R.id.button_create);
         create.setOnClickListener(this);
@@ -44,19 +42,16 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     public void onCheckedChanged (RadioGroup rg, int newchecked) {
     	switch (newchecked) {
     		case R.id.class_radio:
-    			this.range_layout_1.setVisibility(View.VISIBLE);
-    			this.range_layout_2.setVisibility(View.VISIBLE);		
+    			this.range_layout.setVisibility(View.VISIBLE);		
     			this.manual_layout.setVisibility(View.GONE);
     			break;
     		case R.id.manual_radio:
     			this.manual_layout.setVisibility(View.VISIBLE);
-    			this.range_layout_1.setVisibility(View.GONE);
-    			this.range_layout_2.setVisibility(View.GONE);	
+    			this.range_layout.setVisibility(View.GONE);	
     			break;
     		default:
     			this.manual_layout.setVisibility(View.GONE);
-    			this.range_layout_1.setVisibility(View.GONE);
-    			this.range_layout_2.setVisibility(View.GONE);
+    			this.range_layout.setVisibility(View.GONE);
     	}
     }
     

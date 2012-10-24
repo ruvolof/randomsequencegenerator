@@ -1,32 +1,32 @@
-
-<ScrollView
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/background" >
-    
-<LinearLayout 
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical" >
     
-    <LinearLayout
+    <com.google.ads.AdView 
+        android:id="@+id/adViewTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        ads:adUnitId="a150828e9794053"
+        ads:adSize="BANNER"
+        ads:testDevices="TEST_EMULATOR"
+        ads:loadAdOnCreate="true" />
+    
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent" >
         
-        <com.google.ads.AdView android:id="@+id/adViewTop"
-                         android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"
-                         ads:adUnitId="a150828e9794053"
-                         ads:adSize="BANNER"
-                         ads:testDevices="TEST_EMULATOR"
-                         ads:loadAdOnCreate="true" />
-     
-    </LinearLayout>
-    	    
-	    <RadioGroup
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        
+    <RadioGroup
 	        android:id="@+id/radio_group"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
@@ -62,10 +62,10 @@
 	            android:text="@string/manual_radio"
 	            android:textColor="@color/text_color" />
    	
-    	</RadioGroup>
-
-    <LinearLayout
-        android:id="@+id/dlu_range"
+    </RadioGroup>
+    
+     <RelativeLayout
+        android:id="@+id/class_range"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" >
@@ -74,7 +74,6 @@
             android:id="@+id/range_digit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_left_radio"
             android:text="@string/range_digit"
             android:textColor="@color/text_color" />
 
@@ -82,7 +81,7 @@
             android:id="@+id/range_lowercase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_left_radio"
+            android:layout_centerHorizontal="true"
             android:text="@string/range_lowercase"
             android:textColor="@color/text_color" />
 
@@ -90,27 +89,20 @@
             android:id="@+id/range_uppercase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_left_radio"
+            android:layout_alignParentRight="true"
             android:text="@string/range_uppercase"
             android:textColor="@color/text_color" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/s_range"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" >
-
-        <CheckBox
+        
+         <CheckBox
             android:id="@+id/range_special"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_left_radio"
+			android:layout_below="@id/range_digit"
             android:text="@string/range_special"
             android:textColor="@color/text_color" />
-
-    </LinearLayout>
-
+         
+    </RelativeLayout>    
+    
     <LinearLayout
         android:id="@+id/manual_layout"
         android:layout_width="match_parent"
@@ -129,6 +121,10 @@
         </EditText>
 
     </LinearLayout>
+    
+    <LinearLayout
+    android:focusable="true" android:focusableInTouchMode="true"
+    android:layout_width="0px" android:layout_height="0px"/>
     
     <LinearLayout
         android:layout_width="match_parent"
@@ -150,11 +146,12 @@
             android:layout_weight="1"
             android:ems="10"
             android:inputType="numberDecimal"
-            android:text="@string/default_length" />
+            android:text="@string/default_length"
+            android:nextFocusUp="@id/string_length"
+            android:nextFocusLeft="@id/string_length" />
         
     </LinearLayout>
     
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -212,7 +209,10 @@
             android:textColor="@color/text_color" />
 
     </RelativeLayout>
-
+    
+    </LinearLayout>
+    
+    </ScrollView>
+    
 
 </LinearLayout>
-</ScrollView>
