@@ -2,22 +2,22 @@
 
     <string name="app_name">RandomSequenceGenerator</string>
     <string name="title_activity_rsg_main">Random Sequence Generator</string>
-    <string name="binary_radio">Binary</string>
-    <string name="hex_radio">Hexadecimal</string>
-    <string name="class_radio">Class</string>
-    <string name="manual_radio">Manual</string>
+    <string name="binary_radio">Binaria</string>
+    <string name="hex_radio">Esadecimale</string>
+    <string name="class_radio">Classi</string>
+    <string name="manual_radio">Manuale</string>
     <string name="range_digit">[0&#8211;9]</string>
     <string name="range_lowercase">[a&#8211;z]</string>
     <string name="range_uppercase">[A&#8211;Z]</string>
     <string name="range_special">[$%&amp;()=?@#&lt;&gt;_£[]*]</string>
     <string name="suggestion_manual">abcd078[]</string>
-    <string name="button_create">Create</string>
+    <string name="button_create">Crea</string>
     <string name="default_length">32</string>
-    <string name="default_length_label">Length</string>
-    <string name="copy">Copy</string>
-    <string name="copied_to_cb">Copied to clipboard</string>
-    <string name="send_to">Send</string>
-    <string name="send_with">Send with:</string>
+    <string name="default_length_label">Lunghezza</string>
+    <string name="copy">Copia</string>
+    <string name="copied_to_cb">Copiato negli appunti</string>
+    <string name="send_to">Invia</string>
+    <string name="send_with">Invia con:</string>
     <color name="background">#333</color>
     <color name="text_color">#fff</color>
     <dimen name="margin_left_radio">15px</dimen>
