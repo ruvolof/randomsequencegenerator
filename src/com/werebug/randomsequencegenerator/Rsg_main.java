@@ -21,21 +21,27 @@ import android.content.Intent;
 
 public class Rsg_main extends Activity implements OnClickListener, OnCheckedChangeListener {
 	
-	View range_layout;
-	View manual_layout;
+	private View range_layout;
+	private View manual_layout;
+	private Intent send_to = new Intent(Intent.ACTION_SEND);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rsg_main);
-    	this.range_layout = (View)findViewById(R.id.class_range);
+        
+        this.range_layout = (View)findViewById(R.id.class_range);
     	this.manual_layout = (View)findViewById(R.id.manual_layout);
+
+        // Setting Listener for buttons
         Button create = (Button)findViewById(R.id.button_create);
         create.setOnClickListener(this);
         Button copy = (Button)findViewById(R.id.copy_button);
         copy.setOnClickListener(this);
         Button send_to = (Button)findViewById(R.id.send_button);
         send_to.setOnClickListener(this);
+        
+        // Setting listener for RadioGroup
         RadioGroup rg = (RadioGroup)findViewById(R.id.radio_group);
         rg.setOnCheckedChangeListener(this);
     }
@@ -146,11 +152,10 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     		
     		case R.id.send_button:
     			TextView sequence_to_send = (TextView)findViewById(R.id.output_textview);
-    			Intent intent = new Intent(Intent.ACTION_SEND);
-    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-    			intent.setType("text/plain");
-    			intent.putExtra(Intent.EXTRA_TEXT, sequence_to_send.getText());
-    			startActivity(Intent.createChooser(intent, getResources().getString(R.string.send_with)));
+    			this.send_to.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+    			this.send_to.setType("text/plain");
+    			this.send_to.putExtra(Intent.EXTRA_TEXT, sequence_to_send.getText());
+    			startActivity(Intent.createChooser(send_to, getResources().getString(R.string.send_with)));
     			break;
     	    
     	    default:
