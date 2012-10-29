@@ -1,7 +1,6 @@
 package com.werebug.randomsequencegenerator;
 
 import com.werebug.randomsequencegenerator.R;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
