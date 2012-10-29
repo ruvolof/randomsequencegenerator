@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
@@ -140,6 +141,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
 					android.text.ClipboardManager old_cbm = (android.text.ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
     				old_cbm.setText(random_sequence.getText());    				
     			}
+    			Toast.makeText(this, R.string.copied_to_cb, Toast.LENGTH_SHORT).show();
     			break;
     		
     		case R.id.send_button:

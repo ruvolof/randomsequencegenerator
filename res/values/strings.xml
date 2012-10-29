@@ -16,6 +16,7 @@
     <string name="default_length">32</string>
     <string name="default_length_label">Length</string>
     <string name="copy">Copy</string>
+    <string name="copied_to_cb">Copied to clipboard</string>
     <string name="send_to">Send</string>
     <string name="send_with">Send with:</string>
     <color name="background">#333</color>
