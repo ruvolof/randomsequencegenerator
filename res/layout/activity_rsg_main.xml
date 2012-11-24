@@ -12,7 +12,7 @@
         android:id="@+id/adViewTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        ads:adUnitId="a150828e9794053"
+        ads:adUnitId="a150b0abb533d99"
         ads:adSize="BANNER"
         ads:testDevices="TEST_EMULATOR"
         ads:loadAdOnCreate="true" />
