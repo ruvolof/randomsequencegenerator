@@ -21,7 +21,7 @@ import android.content.Intent;
 public class Rsg_main extends Activity implements OnClickListener, OnCheckedChangeListener {
 	
 	// Layout widgets
-	private View range_layout, manual_layout, copy_send;
+	private View range_layout, manual_layout;
 	private Button create, copy, send_to;
 	private CheckBox digit, lowercase, uppercase, special;
 	private RadioGroup rg;
@@ -45,9 +45,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
         
         // Retrieving layout
         this.range_layout = (View)findViewById(R.id.class_range);
-    	this.manual_layout = (View)findViewById(R.id.manual_layout);
-    	this.copy_send = (View)findViewById(R.id.copy_send);
-    	
+    	this.manual_layout = (View)findViewById(R.id.manual_layout);   	
     	
     	// Retrieving CheckBox
     	this.digit = (CheckBox)findViewById(R.id.range_digit);
@@ -141,7 +139,8 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	int chars_last_index = chars.length() - 1;
     	    	
     	    	if (chars_last_index >= 0) {
-    	    		this.copy_send.setVisibility(View.VISIBLE);
+    	    		this.copy.setVisibility(View.VISIBLE);
+    	    		this.send_to.setVisibility(View.VISIBLE);
     	    		
     	    		// Converting length to integer
 	    	    	String length_as_string = this.length_textview.getText().toString();
@@ -156,7 +155,8 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
 	    	    	}
     	    	}
     	    	else {
-    	    		this.copy_send.setVisibility(View.GONE);
+    	    		this.copy.setVisibility(View.GONE);
+    	    		this.send_to.setVisibility(View.GONE);
     	    	}
     	    	
     	    	output.setText(result);
