@@ -18,5 +18,8 @@
     <string name="copied_to_cb">Copiado al portapapeles</string>
     <string name="send_to">Enviar</string>
     <string name="send_with">Enviar con:</string>
+    <string name="save_sequence">Ahorrar</string>
+    <string name="confirm_saving">Ahorrar</string>
+    <string name="save_dialog">Guardar como&#8230;</string>
 
 </resources>

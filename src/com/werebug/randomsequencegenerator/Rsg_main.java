@@ -3,6 +3,8 @@ package com.werebug.randomsequencegenerator;
 import com.werebug.randomsequencegenerator.R;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -12,17 +14,18 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
-public class Rsg_main extends Activity implements OnClickListener, OnCheckedChangeListener {
+public class Rsg_main extends FragmentActivity implements OnClickListener, OnCheckedChangeListener, SaveDialog.SaveDialogListener {
 	
 	// Layout widgets
 	private View range_layout, manual_layout;
-	private Button create, copy, send_to;
+	private Button create, copy, send_to, save_sequence;
 	private CheckBox digit, lowercase, uppercase, special;
 	private RadioGroup rg;
 	private TextView manual, length_textview, output;
@@ -68,6 +71,9 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
         
         this.send_to = (Button)findViewById(R.id.send_button);
         this.send_to.setOnClickListener(this);
+        
+        this.save_sequence = (Button)findViewById(R.id.save_button);
+        this.save_sequence.setOnClickListener(this);
         
         // Setting listener for RadioGroup
         this.rg = (RadioGroup)findViewById(R.id.radio_group);
@@ -141,6 +147,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	if (chars_last_index >= 0) {
     	    		this.copy.setVisibility(View.VISIBLE);
     	    		this.send_to.setVisibility(View.VISIBLE);
+    	    		this.save_sequence.setVisibility(View.VISIBLE);
     	    		
     	    		// Converting length to integer
 	    	    	String length_as_string = this.length_textview.getText().toString();
@@ -157,6 +164,7 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     	    	else {
     	    		this.copy.setVisibility(View.GONE);
     	    		this.send_to.setVisibility(View.GONE);
+    	    		this.save_sequence.setVisibility(View.VISIBLE);
     	    	}
     	    	
     	    	output.setText(result);
@@ -182,9 +190,32 @@ public class Rsg_main extends Activity implements OnClickListener, OnCheckedChan
     			this.send_to_intent.putExtra(Intent.EXTRA_TEXT, this.output.getText());
     			startActivity(Intent.createChooser(this.send_to_intent, getResources().getString(R.string.send_with)));
     			break;
+    			
+    		case R.id.save_button:
+    			DialogFragment newFragment = new SaveDialog();
+    		    newFragment.show(getSupportFragmentManager(), "save_dialog");
+    			break;
     	    
     	    default:
     	    	break;
     	}
+    }
+    
+    public void onDialogPositiveClick (DialogFragment dialog) {
+    	TextView save_name_view = (TextView)findViewById(R.id.save_name);
+    	CharSequence save_name = save_name_view.getText();
+    	CharSequence sequence = this.output.getText();
+    	
+    	SharedPreferences sp = this.getPreferences(MODE_PRIVATE);
+    	Editor ed = sp.edit();
+    	
+    	ed.putString(save_name.toString(), sequence.toString());
+    	
+    	ed.commit();
+    }
+    
+    // Doing nothing when the user press cancel on SaveDialog
+    public void onDialogNegativeClick (DialogFragment dialog) {
+    	return;
     }
 }

@@ -18,5 +18,10 @@
     <string name="copied_to_cb">Copied to clipboard</string>
     <string name="send_to">Send</string>
     <string name="send_with">Send with:</string>
+    <string name="save_sequence">Save</string>
+    <string name="confirm_saving">Save</string>
+    <string name="cancel_saving">Cancel</string>
+    <string name="save_dialog">Save as&#8230;</string>
+    <string name="save_hint">Enter a name</string>
 
 </resources>

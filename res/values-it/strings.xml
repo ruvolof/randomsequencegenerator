@@ -18,5 +18,8 @@
     <string name="copied_to_cb">Copiato negli appunti</string>
     <string name="send_to">Invia</string>
     <string name="send_with">Invia con:</string>
+    <string name="save_sequence">Salva</string>
+    <string name="confirm_saving">Salva</string>
+    <string name="save_dialog">Salva come&#8230;</string>
 
 </resources>

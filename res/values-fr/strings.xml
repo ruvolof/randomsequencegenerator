@@ -18,5 +18,9 @@
     <string name="copied_to_cb">Copié dans le presse-papiers</string>
     <string name="send_to">Envoyer</string>
     <string name="send_with">Envoyer avec:</string>
+    <string name="save_sequence">Sauver</string>
+    <string name="confirm_saving">Sauver</string>
+    <string name="save_dialog">Sauver comme&#8230;</string>
+    
 
 </resources>

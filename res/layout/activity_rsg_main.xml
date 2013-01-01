@@ -172,6 +172,15 @@
             android:layout_alignRight="@id/button_create"
             android:text="@string/send_to"
             android:visibility="gone" />
+        
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_create"
+            android:layout_centerHorizontal="true"
+            android:text="@string/save_sequence"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/copy_button"
