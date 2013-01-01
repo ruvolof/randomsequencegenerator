@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">RandomSequenceGenerator</string>
@@ -22,6 +23,11 @@
     <string name="confirm_saving">Save</string>
     <string name="cancel_saving">Cancel</string>
     <string name="save_dialog">Save as&#8230;</string>
+    <string name="saved_menu">Saved</string>
     <string name="save_hint">Enter a name</string>
+    <string name="goto_saved">Click menu button to go to saved sequences</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_show_saved">Saved Sequences</string>
 
 </resources>

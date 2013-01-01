@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -78,6 +80,25 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
         // Setting listener for RadioGroup
         this.rg = (RadioGroup)findViewById(R.id.radio_group);
         this.rg.setOnCheckedChangeListener(this);
+    }
+    
+    // Creating menu
+    public boolean onCreateOptionsMenu(Menu m) {
+    	m.add(0, 0, 0, R.string.saved_menu);
+    	return true;
+    }
+    
+    // Handler for menu entries
+    public boolean onOptionsItemSelected(MenuItem mi){
+    	switch (mi.getItemId()){
+    		case 0:
+    			Intent goto_saved = new Intent(this, ShowSaved.class);
+    			this.startActivity(goto_saved);
+    			return true;
+    			
+    		default:
+    			return super.onOptionsItemSelected(mi);
+    	}
     }
     
     // Implements OnCheckedChangeListener
@@ -201,6 +222,8 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	}
     }
     
+    // Next two function are callback function for Save Dialog
+    // Saving the string if user clicked save on SaveDialog
     public void onDialogPositiveClick (DialogFragment dialog) {
     	TextView save_name_view = (TextView)findViewById(R.id.save_name);
     	CharSequence save_name = save_name_view.getText();

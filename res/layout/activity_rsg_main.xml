@@ -199,15 +199,16 @@
 
         <TextView
             android:id="@+id/output_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:background="@color/background"
             android:singleLine="false"
             android:textSize="30dp"
-            android:textColor="@color/text_color" />
+            android:textColor="@color/text_color"
+            android:hint="@string/goto_saved" />
 
     </RelativeLayout>
     
