@@ -6,12 +6,14 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
+import android.widget.EditText;
 
 public class SaveDialog extends DialogFragment {
 	
+	private EditText edit_name;
+	
 	public interface SaveDialogListener {
-		public void onDialogPositiveClick(DialogFragment dialog);
+		public void onDialogPositiveClick(DialogFragment dialog, String name);
 		public void onDialogNegativeClick(DialogFragment dialog);
 	}
 	
@@ -36,11 +38,10 @@ public class SaveDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Build the dialog and set up the button click handlers
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
         
-        builder.setView(inflater.inflate(R.layout.save_as_dialog, null))
-        	   .setMessage(R.string.save_dialog)
+        edit_name = new EditText(this.getActivity());
+                
+        builder.setMessage(R.string.save_dialog)
                .setNegativeButton(R.string.cancel_saving, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Send the negative button event back to the host activity
@@ -49,10 +50,13 @@ public class SaveDialog extends DialogFragment {
                })
                .setPositiveButton(R.string.confirm_saving, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
+                	   // Retrieving name
+                	   String name = edit_name.getText().toString();
                        // Send the positive button event back to the host activity
-                       mListener.onDialogPositiveClick(SaveDialog.this);
+                       mListener.onDialogPositiveClick(SaveDialog.this, name);
                    }
-               });
+               })
+               .setView(edit_name);
         return builder.create();
     }
 	

@@ -224,9 +224,8 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     
     // Next two function are callback function for Save Dialog
     // Saving the string if user clicked save on SaveDialog
-    public void onDialogPositiveClick (DialogFragment dialog) {
-    	TextView save_name_view = (TextView)findViewById(R.id.save_name);
-    	CharSequence save_name = save_name_view.getText();
+    public void onDialogPositiveClick (DialogFragment dialog, String name) {
+    	CharSequence save_name = name;
     	CharSequence sequence = this.output.getText();
     	
     	SharedPreferences sp = this.getPreferences(MODE_PRIVATE);
@@ -235,6 +234,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	ed.putString(save_name.toString(), sequence.toString());
     	
     	ed.commit();
+    	Toast.makeText(this, save_name, Toast.LENGTH_SHORT).show();
     }
     
     // Doing nothing when the user press cancel on SaveDialog
