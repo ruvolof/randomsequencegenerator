@@ -166,6 +166,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	    	int chars_last_index = chars.length() - 1;
     	    	
     	    	if (chars_last_index >= 0) {
+    	    		// Showing buttons
     	    		this.copy.setVisibility(View.VISIBLE);
     	    		this.send_to.setVisibility(View.VISIBLE);
     	    		this.save_sequence.setVisibility(View.VISIBLE);
@@ -182,7 +183,8 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
 	    	    		result = result.concat(to_concat);
 	    	    	}
     	    	}
-    	    	else {
+    	    	else {    	    		
+    	    		// Hiding buttons again
     	    		this.copy.setVisibility(View.GONE);
     	    		this.send_to.setVisibility(View.GONE);
     	    		this.save_sequence.setVisibility(View.VISIBLE);

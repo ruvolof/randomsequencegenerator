@@ -23,7 +23,7 @@
         
     <LinearLayout 
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical" >
         
     <RadioGroup
@@ -194,20 +194,20 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
 
         <TextView
             android:id="@+id/output_textview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:background="@color/background"
             android:singleLine="false"
-            android:textSize="30dp"
+            android:textSize="30sp"
             android:textColor="@color/text_color"
+            android:textColorHint="@color/text_color"
             android:hint="@string/goto_saved" />
 
     </RelativeLayout>
