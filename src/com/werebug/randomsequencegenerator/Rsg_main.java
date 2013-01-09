@@ -228,7 +228,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	CharSequence save_name = name;
     	CharSequence sequence = this.output.getText();
     	
-    	SharedPreferences sp = this.getPreferences(MODE_PRIVATE);
+    	SharedPreferences sp = this.getSharedPreferences("saved_sequences", MODE_PRIVATE);
     	Editor ed = sp.edit();
     	
     	ed.putString(save_name.toString(), sequence.toString());

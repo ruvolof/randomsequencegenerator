@@ -1,19 +1,25 @@
 package com.werebug.randomsequencegenerator;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.view.Menu;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class ShowSaved extends Activity {
 	
 	// Layout
-	private LinearLayout add_here;
+	private ListView add_here;
+	
+	// String Array
+	private ArrayList<String> string = new ArrayList<String>();
+	
+	// Array adapter for ListView add_here
+	private ArrayAdapter<String> saved;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -21,20 +27,19 @@ public class ShowSaved extends Activity {
 		
 		this.setContentView(R.layout.activity_show_saved);
 		
-		this.add_here = (LinearLayout)findViewById(R.id.saved_list);
+		this.add_here = (ListView)findViewById(R.id.saved_list);
 		
 		// Loading shared preferences
-		SharedPreferences sp = this.getPreferences(MODE_PRIVATE);
+		SharedPreferences sp = this.getSharedPreferences("saved_sequences", MODE_PRIVATE);
 		Map<String, ?> kv = sp.getAll();
 		
-		int i = 0;
 		// Iterating through shared preferences
-		for(Map.Entry<String, ?> entry : kv.entrySet()) {
-			TextView to_add = new TextView(this);
-			to_add.setText(entry.getKey());
-			to_add.setId(i++);
-			this.add_here.addView(to_add, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		for(Map.Entry<String, ?> entry : kv.entrySet()) {		
+			string.add(entry.getKey());
 		}
+		
+		this.saved = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, string);
+		this.add_here.setAdapter(saved);
 	}
 
 	@Override
