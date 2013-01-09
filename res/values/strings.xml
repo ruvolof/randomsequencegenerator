@@ -29,5 +29,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_delete_all">Delete all</string>
     <string name="title_activity_show_saved">Saved Sequences</string>
+    <string name="empty_saved">No saved entries</string>
 
 </resources>
