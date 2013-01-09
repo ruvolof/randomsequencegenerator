@@ -236,7 +236,6 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	ed.putString(save_name.toString(), sequence.toString());
     	
     	ed.commit();
-    	Toast.makeText(this, save_name, Toast.LENGTH_SHORT).show();
     }
     
     // Doing nothing when the user press cancel on SaveDialog
