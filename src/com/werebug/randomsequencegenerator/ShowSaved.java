@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ShowSaved extends Activity implements OnItemClickListener {
+public class ShowSaved extends FragmentActivity implements OnItemClickListener, ConfirmDeleteAllDialog.ConfirmDeleteAllListener {
 	
 	// Layout
 	private ListView add_here;
@@ -78,18 +79,28 @@ public class ShowSaved extends Activity implements OnItemClickListener {
 	public boolean onOptionsItemSelected (MenuItem mi){
 		switch (mi.getItemId()){
 			case R.id.menu_delete_all:
-				// Erasing entries from SharedPreferences
-				Editor ed = (Editor)this.sp.edit();
-				ed.clear();
-				ed.commit();
-				
-				// Erasing entries from ListView
-				this.saved.clear();
+				DialogFragment newFragment = new ConfirmDeleteAllDialog();
+    		    newFragment.show(getSupportFragmentManager(), "confirm_delete_all");
 				return true;
 				
 			default:
 				return super.onOptionsItemSelected(mi);
 		}
+	}
+	
+	// Implementing method from ConfirmDeleteAllDialog.onConfirmDeleteAllListener
+	public void onConfirmDeleteAllPositive (DialogFragment dialog) {
+		// Erasing entries from SharedPreferences
+		Editor ed = (Editor)this.sp.edit();
+		ed.clear();
+		ed.commit();
+		
+		// Erasing entries from ListView
+		this.saved.clear();
+	}
+	
+	public void onConfirmDeleteAllNegative (DialogFragment dialog) {
+		return;
 	}
 
 }

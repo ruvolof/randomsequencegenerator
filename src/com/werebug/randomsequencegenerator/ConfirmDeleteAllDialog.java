@@ -6,18 +6,15 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.widget.EditText;
 
-public class SaveDialog extends DialogFragment {
+public class ConfirmDeleteAllDialog extends DialogFragment {
 	
-	private EditText edit_name;
-	
-	public interface SaveDialogListener {
-		public void onDialogPositiveClick(DialogFragment dialog, String name);
-		public void onDialogNegativeClick(DialogFragment dialog);
+	public interface ConfirmDeleteAllListener {
+		public void onConfirmDeleteAllPositive(DialogFragment dialog);
+		public void onConfirmDeleteAllNegative(DialogFragment dialog);
 	}
 	
-	SaveDialogListener mListener;
+	ConfirmDeleteAllListener mListener;
 	
 	// Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -26,11 +23,11 @@ public class SaveDialog extends DialogFragment {
         // Verify that the host activity implements the callback interface
         try {
             // Instantiate the NoticeDialogListener so we can send events to the host
-            mListener = (SaveDialogListener) activity;
+            mListener = (ConfirmDeleteAllListener) activity;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
-                    + " must implement SaveDialogListener");
+                    + " must implement ConfirmDeleteAllListener");
         }
     }
 	
@@ -38,25 +35,20 @@ public class SaveDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Build the dialog and set up the button click handlers
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        
-        edit_name = new EditText(this.getActivity());
                 
-        builder.setMessage(R.string.save_dialog)
+        builder.setMessage(R.string.confirm_question)
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Send the negative button event back to the host activity
-                       mListener.onDialogNegativeClick(SaveDialog.this);
+                       mListener.onConfirmDeleteAllNegative(ConfirmDeleteAllDialog.this);
                    }
                })
-               .setPositiveButton(R.string.confirm_saving, new DialogInterface.OnClickListener() {
+               .setPositiveButton(R.string.confirm_deletion_all, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
-                	   // Retrieving name
-                	   String name = edit_name.getText().toString();
                        // Send the positive button event back to the host activity
-                       mListener.onDialogPositiveClick(SaveDialog.this, name);
+                       mListener.onConfirmDeleteAllPositive(ConfirmDeleteAllDialog.this);
                    }
-               })
-               .setView(edit_name);
+               });
         return builder.create();
     }
 	

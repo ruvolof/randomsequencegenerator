@@ -21,7 +21,7 @@
     <string name="send_with">Send with:</string>
     <string name="save_sequence">Save</string>
     <string name="confirm_saving">Save</string>
-    <string name="cancel_saving">Cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="save_dialog">Save as&#8230;</string>
     <string name="saved_menu">Saved</string>
     <string name="save_hint">Enter a name</string>
@@ -30,5 +30,7 @@
     <string name="menu_delete_all">Delete all</string>
     <string name="title_activity_show_saved">Saved Sequences</string>
     <string name="empty_saved">No saved entries</string>
+    <string name="confirm_question">Are you sure?</string>
+    <string name="confirm_deletion_all">Yes, delete them!</string>
 
 </resources>
