@@ -37,16 +37,16 @@ public class ConfirmDeleteAllDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 
         builder.setMessage(R.string.confirm_question)
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       // Send the negative button event back to the host activity
-                       mListener.onConfirmDeleteAllNegative(ConfirmDeleteAllDialog.this);
-                   }
-               })
                .setPositiveButton(R.string.confirm_deletion_all, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Send the positive button event back to the host activity
                        mListener.onConfirmDeleteAllPositive(ConfirmDeleteAllDialog.this);
+                   }
+               })
+               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                       // Send the negative button event back to the host activity
+                       mListener.onConfirmDeleteAllNegative(ConfirmDeleteAllDialog.this);
                    }
                });
         return builder.create();

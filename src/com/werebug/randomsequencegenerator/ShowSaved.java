@@ -9,14 +9,19 @@ import android.content.SharedPreferences.Editor;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ShowSaved extends FragmentActivity implements OnItemClickListener, ConfirmDeleteAllDialog.ConfirmDeleteAllListener {
 	
@@ -63,6 +68,9 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 		
 		// Setting Listener for ListView add_here
 		this.add_here.setOnItemClickListener(this);
+		
+		// Setting context menu to ListView item
+		this.registerForContextMenu(this.add_here);
 	}
 
 	@Override
@@ -72,19 +80,56 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 		return true;
 	}
 	
-	public void onItemClick (AdapterView<?> adapter, View view, int pos, long id) {
-		return;
-	}
-	
 	public boolean onOptionsItemSelected (MenuItem mi){
 		switch (mi.getItemId()){
 			case R.id.menu_delete_all:
-				DialogFragment newFragment = new ConfirmDeleteAllDialog();
-    		    newFragment.show(getSupportFragmentManager(), "confirm_delete_all");
+				if (!this.saved.isEmpty()) {
+					DialogFragment newFragment = new ConfirmDeleteAllDialog();
+	    		    newFragment.show(getSupportFragmentManager(), "confirm_delete_all");
+				}
+				else {
+					Toast.makeText(this, R.string.nothing_to_delete, Toast.LENGTH_SHORT).show();
+				}
 				return true;
 				
 			default:
 				return super.onOptionsItemSelected(mi);
+		}
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, view, menuInfo);
+		
+		// Inflating menu layout
+		MenuInflater inflater = this.getMenuInflater();
+		inflater.inflate(R.menu.show_saved_conmenu, menu);
+	}
+	
+	// Implementing onItemClick required for OnItemClickListener
+	public void onItemClick (AdapterView<?> adapter, View view, int pos, long id) {
+		return;
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item){
+		AdapterContextMenuInfo saved = (AdapterContextMenuInfo) item.getMenuInfo();
+
+		String key = ((TextView)saved.targetView).getText().toString();
+
+		switch (item.getItemId()){
+			case R.id.conmenu_delete:
+				Log.d("DEBUG:", key);
+				return true;
+				
+			case R.id.conmenu_copy:
+				return true;
+				
+			case R.id.conmenu_send:
+				return true;
+				
+			default:
+				return super.onContextItemSelected(item);
 		}
 	}
 	

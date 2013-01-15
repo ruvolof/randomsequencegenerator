@@ -32,5 +32,7 @@
     <string name="empty_saved">No saved entries</string>
     <string name="confirm_question">Are you sure?</string>
     <string name="confirm_deletion_all">Yes, delete them!</string>
+    <string name="nothing_to_delete">There are no saved entries.</string>
+    <string name="delete">Delete</string>
 
 </resources>
