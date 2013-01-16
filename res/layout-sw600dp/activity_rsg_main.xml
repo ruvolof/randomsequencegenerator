@@ -38,28 +38,28 @@
 	            android:layout_width="wrap_content"
 	            android:layout_height="50dp"
 	            android:checked="true"
-	            android:text="@string/binary_radio"
+	            android:text="@string/r_binary"
 	            android:textColor="@color/text_color" />
 	
 	        <RadioButton
 	            android:id="@+id/hex_radio"
 	            android:layout_width="wrap_content"
 	            android:layout_height="50dp"
-	            android:text="@string/hex_radio"
+	            android:text="@string/r_hexadecimal"
 	            android:textColor="@color/text_color" />
 	
 	        <RadioButton
 	            android:id="@+id/class_radio"
 	            android:layout_width="wrap_content"
 	            android:layout_height="50dp"
-	            android:text="@string/class_radio"
+	            android:text="@string/r_class"
 	            android:textColor="@color/text_color" />
 	
 	        <RadioButton
 	            android:id="@+id/manual_radio"
 	            android:layout_width="wrap_content"
 	            android:layout_height="50dp"
-	            android:text="@string/manual_radio"
+	            android:text="@string/r_manual"
 	            android:textColor="@color/text_color" />
    	
     </RadioGroup>
@@ -116,7 +116,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:inputType="text"
-            android:hint="@string/suggestion_manual" >
+            android:hint="@string/manual_hint" >
 
         </EditText>
 
@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/default_length_label"
+            android:text="@string/length"
             android:textColor="@color/text_color"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -162,7 +162,7 @@
             android:layout_width="252dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="@string/button_create" />
+            android:text="@string/create" />
 
         <Button
             android:id="@+id/send_button"
@@ -170,7 +170,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/button_create"
             android:layout_alignRight="@id/button_create"
-            android:text="@string/send_to"
+            android:text="@string/send"
             android:visibility="gone" />
 
         <Button
@@ -185,20 +185,21 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
 
         <TextView
             android:id="@+id/output_textview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:layout_gravity="center"
+            android:gravity="center"
             android:background="@color/background"
             android:singleLine="false"
-            android:textSize="30dp"
-            android:textColor="@color/text_color" />
+            android:textSize="30sp"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/text_color"
+            android:hint="@string/goto_saved" />
 
     </RelativeLayout>
     

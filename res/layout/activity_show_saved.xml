@@ -28,7 +28,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:text="@string/empty_saved"
+        android:text="@string/no_saved"
         android:textColor="@color/text_color" /> 
 
 

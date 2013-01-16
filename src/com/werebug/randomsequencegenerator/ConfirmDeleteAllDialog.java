@@ -36,8 +36,8 @@ public class ConfirmDeleteAllDialog extends DialogFragment {
         // Build the dialog and set up the button click handlers
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 
-        builder.setMessage(R.string.confirm_question)
-               .setPositiveButton(R.string.confirm_deletion_all, new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.are_you_sure)
+               .setPositiveButton(R.string.yes_delete_them, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Send the positive button event back to the host activity
                        mListener.onConfirmDeleteAllPositive(ConfirmDeleteAllDialog.this);

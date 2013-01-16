@@ -84,7 +84,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     
     // Creating menu
     public boolean onCreateOptionsMenu(Menu m) {
-    	m.add(0, 0, 0, R.string.saved_menu);
+    	m.add(0, 0, 0, R.string.saved);
     	return true;
     }
     
