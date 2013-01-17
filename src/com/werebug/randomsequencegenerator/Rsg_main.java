@@ -81,7 +81,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
         this.rg = (RadioGroup)findViewById(R.id.radio_group);
         this.rg.setOnCheckedChangeListener(this);
     }
-    
+
     // Creating menu
     public boolean onCreateOptionsMenu(Menu m) {
     	m.add(0, 0, 0, R.string.saved);
@@ -100,7 +100,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     			return super.onOptionsItemSelected(mi);
     	}
     }
-    
+  
     // Implements OnCheckedChangeListener
     // This functions hides and shows widget depending on situation
     public void onCheckedChanged (RadioGroup rg, int newchecked) {
@@ -211,7 +211,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     			this.send_to_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
     			this.send_to_intent.setType("text/plain");
     			this.send_to_intent.putExtra(Intent.EXTRA_TEXT, this.output.getText());
-    			startActivity(Intent.createChooser(this.send_to_intent, getResources().getString(R.string.send_with)));
+    			startActivity(Intent.createChooser(this.send_to_intent, getResources().getString(R.string.send)));
     			break;
     			
     		case R.id.save_button:

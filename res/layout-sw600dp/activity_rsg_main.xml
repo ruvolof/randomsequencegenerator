@@ -164,13 +164,22 @@
             android:layout_centerHorizontal="true"
             android:text="@string/create" />
 
-        <Button
+          <Button
             android:id="@+id/send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/button_create"
             android:layout_alignRight="@id/button_create"
             android:text="@string/send"
+            android:visibility="gone" />
+        
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_create"
+            android:layout_centerHorizontal="true"
+            android:text="@string/save"
             android:visibility="gone" />
 
         <Button
