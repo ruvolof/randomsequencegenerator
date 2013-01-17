@@ -41,14 +41,14 @@ public class SaveDialog extends DialogFragment {
         
         edit_name = new EditText(this.getActivity());
                 
-        builder.setMessage(R.string.save_dialog)
+        builder.setMessage(R.string.save_as)
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Send the negative button event back to the host activity
                        mListener.onDialogNegativeClick(SaveDialog.this);
                    }
                })
-               .setPositiveButton(R.string.confirm_saving, new DialogInterface.OnClickListener() {
+               .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                 	   // Retrieving name
                 	   String name = edit_name.getText().toString();
