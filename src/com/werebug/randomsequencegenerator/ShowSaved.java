@@ -22,6 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.*;
+import android.content.*;
 
 public class ShowSaved extends FragmentActivity implements OnItemClickListener, ConfirmDeleteAllDialog.ConfirmDeleteAllListener {
 	
@@ -119,10 +121,31 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 
 		switch (item.getItemId()){
 			case R.id.conmenu_delete:
-				Log.d("DEBUG:", key);
+				Editor ed = this.sp.edit();
+				ed.remove(key);
+				ed.commit();
 				return true;
 				
 			case R.id.conmenu_copy:
+				// Retrieving string value from SharedPreferences
+				String val = sp.getString(key, "null");
+				
+				if (val.equals("null")) {
+					Toast.makeText(this, R.string.string_notfound, Toast.LENGTH_SHORT).show();
+				}
+				else {
+					int sdk = Build.VERSION.SDK_INT;
+    				if (sdk >= 11) {
+	    				ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	    				ClipData clip = ClipData.newPlainText("rgs", val);
+	    				clipboard.setPrimaryClip(clip);
+    				}
+    				else {
+						android.text.ClipboardManager old_cbm = (android.text.ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+    					old_cbm.setText(val);    				
+    				}
+    				Toast.makeText(this, R.string.copied_to_cb, Toast.LENGTH_SHORT).show();	
+				}
 				return true;
 				
 			case R.id.conmenu_send:

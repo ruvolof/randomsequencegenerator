@@ -32,5 +32,6 @@
     <string name="yes_delete_them">Yes, delete them!</string>
     <string name="nothing_to_delete">There are no saved entries.</string>
     <string name="delete">Delete</string>
+	<string name="string_notfound">There isn\'t any saved string which matches this key.</string>
 
 </resources>
