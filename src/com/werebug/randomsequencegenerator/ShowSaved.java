@@ -121,9 +121,13 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 
 		switch (item.getItemId()){
 			case R.id.conmenu_delete:
+				// Removing key from editor
 				Editor ed = this.sp.edit();
 				ed.remove(key);
 				ed.commit();
+				
+				// Hiding View from ListView
+				saved.targetView.setVisibility(View.GONE);
 				return true;
 				
 			case R.id.conmenu_copy:
