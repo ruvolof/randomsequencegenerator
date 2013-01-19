@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.v4.app.DialogFragment;
@@ -22,6 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.*;
+import android.content.*;
 
 public class ShowSaved extends FragmentActivity implements OnItemClickListener, ConfirmDeleteAllDialog.ConfirmDeleteAllListener {
 	
@@ -37,6 +40,9 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 	
 	// Array adapter for ListView add_here
 	private ArrayAdapter<String> saved;
+	
+	// Intent to send with
+	private Intent send_to = new Intent(Intent.ACTION_SEND);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -111,21 +117,52 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 		return;
 	}
 	
+	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onContextItemSelected(MenuItem item){
 		AdapterContextMenuInfo saved = (AdapterContextMenuInfo) item.getMenuInfo();
 
 		String key = ((TextView)saved.targetView).getText().toString();
+		
+		// Retrieving string value from SharedPreferences
+		String val = sp.getString(key, "null");
 
 		switch (item.getItemId()){
 			case R.id.conmenu_delete:
-				Log.d("DEBUG:", key);
+				// Removing key from editor
+				Editor ed = this.sp.edit();
+				ed.remove(key);
+				ed.commit();
+				
+				// Hiding View from ListView
+				saved.targetView.setVisibility(View.GONE);
 				return true;
 				
 			case R.id.conmenu_copy:
+				if (val.equals("null")) {
+					Toast.makeText(this, R.string.string_notfound, Toast.LENGTH_SHORT).show();
+				}
+				else {
+					int sdk = Build.VERSION.SDK_INT;
+    				if (sdk >= 11) {
+	    				ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	    				ClipData clip = ClipData.newPlainText("rgs", val);
+	    				clipboard.setPrimaryClip(clip);
+    				}
+    				else {
+						android.text.ClipboardManager old_cbm = (android.text.ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+    					old_cbm.setText(val);    				
+    				}
+    				Toast.makeText(this, R.string.copied_to_cb, Toast.LENGTH_SHORT).show();	
+				}
 				return true;
 				
 			case R.id.conmenu_send:
+				this.send_to.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+    			this.send_to.setType("text/plain");
+    			this.send_to.putExtra(Intent.EXTRA_TEXT, val);
+    			startActivity(Intent.createChooser(this.send_to, getResources().getString(R.string.send)));
 				return true;
 				
 			default:

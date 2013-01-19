@@ -33,5 +33,7 @@
     <string name="nothing_to_delete">There are no saved entries.</string>
     <string name="delete">Delete</string>
     <string name="title_activity_show_single">Show Sequences</string>
+	<string name="string_notfound">There isn\'t any saved string which matches this key.</string>
+
 
 </resources>
