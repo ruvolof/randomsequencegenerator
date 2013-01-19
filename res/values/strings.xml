@@ -32,5 +32,6 @@
     <string name="yes_delete_them">Yes, delete them!</string>
     <string name="nothing_to_delete">There are no saved entries.</string>
     <string name="delete">Delete</string>
+    <string name="title_activity_show_single">Show Sequences</string>
 
 </resources>

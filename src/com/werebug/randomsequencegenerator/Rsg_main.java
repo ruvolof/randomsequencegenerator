@@ -43,7 +43,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
 	// Intent to send text to other apps
 	private Intent send_to_intent = new Intent(Intent.ACTION_SEND);
 
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rsg_main);
@@ -80,6 +80,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
         // Setting listener for RadioGroup
         this.rg = (RadioGroup)findViewById(R.id.radio_group);
         this.rg.setOnCheckedChangeListener(this);
+
     }
 
     // Creating menu

@@ -31,6 +31,10 @@
             android:name="com.werebug.randomsequencegenerator.ShowSaved"
             android:label="@string/title_activity_show_saved" >
         </activity>
+        <activity
+            android:name="com.werebug.randomsequencegenerator.ShowSingle"
+            android:label="@string/title_activity_show_single" >
+        </activity>
     </application>
 
 </manifest>

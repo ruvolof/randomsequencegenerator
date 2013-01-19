@@ -3,7 +3,7 @@
     <item 
         android:id="@+id/conmenu_delete"
         android:title="@string/delete" />
-    
+        
     <item 
         android:id="@+id/conmenu_copy"
         android:title="@string/copy" />
