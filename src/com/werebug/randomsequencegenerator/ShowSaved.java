@@ -5,11 +5,11 @@ import java.util.Map;
 
 import android.os.Bundle;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -113,7 +113,15 @@ public class ShowSaved extends FragmentActivity implements OnItemClickListener, 
 	}
 	
 	// Implementing onItemClick required for OnItemClickListener
-	public void onItemClick (AdapterView<?> adapter, View view, int pos, long id) {
+	public void onItemClick (AdapterView<?> adapter, View view, int pos, long id) {		
+		// Finding saved value
+		String key = ((TextView)view).getText().toString();
+		String value = this.sp.getString(key, "null");
+		
+		// Creating intent
+		Intent goto_single = new Intent(this, ShowSingle.class);
+		goto_single.putExtra("seq_to_show", value);
+		this.startActivity(goto_single);
 		return;
 	}
 	
