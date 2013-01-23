@@ -170,7 +170,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/button_create"
             android:layout_alignRight="@id/button_create"
-            android:text="@string/send"
+            android:background="@drawable/ic_menu_share"
             android:visibility="gone" />
         
         <Button
@@ -179,7 +179,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/button_create"
             android:layout_centerHorizontal="true"
-            android:text="@string/save"
+            android:background="@drawable/ic_menu_save"
             android:visibility="gone" />
 
         <Button
@@ -188,7 +188,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/button_create"
             android:layout_alignLeft="@id/button_create"
-            android:text="@string/copy"
+            android:background="@drawable/ic_menu_copy_holo_dark"
             android:visibility="gone" />
         
     </RelativeLayout>

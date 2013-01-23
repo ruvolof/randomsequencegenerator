@@ -29,7 +29,7 @@
 		    android:layout_alignParentRight="true"
 		    android:layout_centerVertical="true"
 		    android:layout_margin="50dp"
-		    android:text="@string/send" />
+		    android:background="@drawable/ic_menu_share" />
 
 		<Button
 		    android:id="@+id/copy_button"
@@ -38,7 +38,7 @@
 		    android:layout_alignParentLeft="true"
 		    android:layout_centerVertical="true"
 		    android:layout_margin="50dp"
-		    android:text="@string/copy" />
+		    android:background="@drawable/ic_menu_copy_holo_dark" />
 	
 	</RelativeLayout>
     
