@@ -84,15 +84,17 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     }
 
     // Creating menu
-    public boolean onCreateOptionsMenu(Menu m) {
-    	m.add(0, 0, 0, R.string.saved);
-    	return true;
-    }
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		return true;
+	}
     
     // Handler for menu entries
     public boolean onOptionsItemSelected(MenuItem mi){
     	switch (mi.getItemId()){
-    		case 0:
+    		case R.id.show_saved:
     			Intent goto_saved = new Intent(this, ShowSaved.class);
     			this.startActivity(goto_saved);
     			return true;

@@ -1,9 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_delete_all"
+        android:id="@+id/show_saved"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/delete_all"/>
+        android:title="@string/saved"/>
 
 </menu>
