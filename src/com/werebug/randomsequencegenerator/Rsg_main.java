@@ -190,7 +190,7 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     	    		// Hiding buttons again
     	    		this.copy.setVisibility(View.GONE);
     	    		this.send_to.setVisibility(View.GONE);
-    	    		this.save_sequence.setVisibility(View.VISIBLE);
+    	    		this.save_sequence.setVisibility(View.GONE);
     	    	}
     	    	
     	    	output.setText(result);
