@@ -5,4 +5,7 @@
     <dimen name="main_padding">15dp</dimen>
     <dimen name="img_button">40dp</dimen>
     <dimen name="create_button">250dp</dimen>
+    <dimen name="ss_button_mtop">40dp</dimen>
+    <dimen name="ss_button_mside">200dp</dimen>
+    <dimen name="text_size">30sp</dimen>
 </resources>

@@ -28,7 +28,8 @@
 		    android:layout_height="@dimen/img_button"
 		    android:layout_alignParentRight="true"
 		    android:layout_centerVertical="true"
-		    android:layout_margin="50dp"
+		    android:layout_marginTop="@dimen/ss_button_mtop"
+		    android:layout_marginRight="@dimen/ss_button_mside"
 		    android:background="@drawable/ic_menu_share" />
 
 		<Button
@@ -37,21 +38,23 @@
 		    android:layout_height="@dimen/img_button"
 		    android:layout_alignParentLeft="true"
 		    android:layout_centerVertical="true"
-		    android:layout_margin="50dp"
+		    android:layout_marginTop="@dimen/ss_button_mtop"
+		    android:layout_marginLeft="@dimen/ss_button_mside"
 		    android:background="@drawable/ic_menu_copy_holo_dark" />
 	
 	</RelativeLayout>
     
     <ScrollView
-        android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+	    android:layout_height="fill_parent"
 	    android:layout_marginTop="60dp" >
         
 	    <TextView
 	        android:id="@+id/show"
 	        android:gravity="center"
-	        android:layout_width="wrap_content"
+	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/text_size"
 	        android:textColor="@color/text_color" />    
 	</ScrollView>
 
