@@ -160,15 +160,15 @@
 
         <Button
             android:id="@+id/button_create"
-            android:layout_width="252dp"
+            android:layout_width="@dimen/create_button"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="@string/create" />
 
         <Button
             android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/img_button"
+            android:layout_height="@dimen/img_button"
             android:layout_below="@id/button_create"
             android:layout_alignRight="@id/button_create"
             android:background="@drawable/ic_menu_share"
@@ -176,8 +176,8 @@
         
         <Button
             android:id="@+id/save_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/img_button"
+            android:layout_height="@dimen/img_button"
             android:layout_below="@id/button_create"
             android:layout_centerHorizontal="true"
             android:background="@drawable/ic_menu_save"
@@ -185,8 +185,8 @@
 
         <Button
             android:id="@+id/copy_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/img_button"
+            android:layout_height="@dimen/img_button"
             android:layout_below="@id/button_create"
             android:layout_alignLeft="@id/button_create"
             android:background="@drawable/ic_menu_copy_holo_dark"
