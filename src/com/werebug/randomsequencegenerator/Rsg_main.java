@@ -99,6 +99,11 @@ public class Rsg_main extends FragmentActivity implements OnClickListener, OnChe
     			this.startActivity(goto_saved);
     			return true;
     			
+    		case R.id.launch_coin:
+    			Intent goto_coin = new Intent(this, LaunchCoin.class);
+    			this.startActivity(goto_coin);
+    			return true;
+    			
     		default:
     			return super.onOptionsItemSelected(mi);
     	}

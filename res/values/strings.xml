@@ -18,7 +18,6 @@
     <string name="copy">Copy</string>
     <string name="copied_to_cb">Copied to clipboard</string>
     <string name="send">Send</string>
-    <string name="send_with">Send with:</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="save_as">Save as&#8230;</string>
@@ -33,7 +32,8 @@
     <string name="nothing_to_delete">There are no saved entries.</string>
     <string name="delete">Delete</string>
     <string name="title_activity_show_single">Show Sequences</string>
-	<string name="string_notfound">There isn\'t any saved string which matches this key.</string>
-
+    <string name="string_notfound">There isn\'t any saved string which matches this key.</string>
+    <string name="coin">Coin</string>
+    <string name="title_activity_launch_coin">Launch Coin</string>
 
 </resources>
