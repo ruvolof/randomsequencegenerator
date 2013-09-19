@@ -10,5 +10,7 @@
     <dimen name="text_size">30sp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="coin_view_height">280dp</dimen>
+    <dimen name="coin_text_size">160dp</dimen>
 
 </resources>

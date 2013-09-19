@@ -35,5 +35,7 @@
     <string name="string_notfound">There isn\'t any saved string which matches this key.</string>
     <string name="coin">Coin</string>
     <string name="title_activity_launch_coin">Launch Coin</string>
+    <string name="flip">Flip</string>
+    <string name="click_on_flip">Click on flip</string>
 
 </resources>
