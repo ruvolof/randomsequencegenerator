@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.werebug.randomsequencegenerator"
+    android:versionCode="222"
+    android:versionName="2.2.2" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.werebug.randomsequencegenerator.RSGMain"
+            android:label="@string/title_activity_rsg_main" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.werebug.randomsequencegenerator.ShowSaved"
+            android:label="@string/title_activity_show_saved" >
+        </activity>
+        <activity
+            android:name="com.werebug.randomsequencegenerator.ShowSingle"
+            android:label="@string/title_activity_show_single" >
+        </activity>
+        <activity
+            android:name="com.werebug.randomsequencegenerator.LaunchCoin"
+            android:label="@string/title_activity_launch_coin" >
+        </activity>
+    </application>
+
+</manifest>

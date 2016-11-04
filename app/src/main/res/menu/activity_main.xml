@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/show_saved"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/saved"/>
+    
+    <item
+        android:id="@+id/launch_coin"
+        android:orderInCategory="1010"
+        android:showAsAction="ifRoom"
+        android:title="@string/coin"/>
+
+</menu>

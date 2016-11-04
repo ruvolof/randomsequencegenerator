@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="margin_top_rg">10px</dimen>
+    <dimen name="main_padding">15dp</dimen>
+    <dimen name="img_button">40dp</dimen>
+    <dimen name="create_button">250dp</dimen>
+    <dimen name="ss_button_mtop">40dp</dimen>
+    <dimen name="ss_button_mside">200dp</dimen>
+    <dimen name="text_size">30sp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="coin_view_height">280dp</dimen>
+    <dimen name="coin_text_size">160dp</dimen>
+
+</resources>

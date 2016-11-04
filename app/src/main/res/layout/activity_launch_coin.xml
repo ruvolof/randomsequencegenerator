@@ -1,0 +1,27 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".LaunchCoin" >
+    
+    <TextView
+        android:id="@+id/coin_result"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/coin_view_height"
+        android:layout_alignParentLeft="true"
+        android:hint="@string/click_on_flip"
+        android:gravity="center"
+        android:layout_alignParentTop="true" />
+    
+    <Button 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/coin_result"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/launch_button"
+        android:text="@string/flip"
+        android:layout_marginTop="@dimen/margin_top_rg" />
+        
+</RelativeLayout>
