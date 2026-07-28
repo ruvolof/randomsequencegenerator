@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../../../../../francesco/Dropbox/Informatica/Programmazione/StudioProjects/RandomSequenceGenerator/RandomSequenceGenerator.iml" filepath="$PROJECT_DIR$/../../../../../../francesco/Dropbox/Informatica/Programmazione/StudioProjects/RandomSequenceGenerator/RandomSequenceGenerator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../../../../../francesco/Dropbox/Informatica/Programmazione/StudioProjects/RandomSequenceGenerator/app/app.iml" filepath="$PROJECT_DIR$/../../../../../../francesco/Dropbox/Informatica/Programmazione/StudioProjects/RandomSequenceGenerator/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/random_sequence_generator.iml" filepath="$PROJECT_DIR$/random_sequence_generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/random_sequence_generator_android.iml" filepath="$PROJECT_DIR$/android/random_sequence_generator_android.iml" />
     </modules>
   </component>
 </project>

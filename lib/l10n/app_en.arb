@@ -1,0 +1,220 @@
+{
+  "@@locale": "en",
+
+  "appName": "RandomSequenceGenerator",
+  "@appName": {
+    "description": "The application name, as shown by the launcher."
+  },
+  "titleActivityRsgMain": "Random Sequence Generator",
+  "@titleActivityRsgMain": {
+    "description": "Title of the main screen."
+  },
+
+  "rBinary": "Binary",
+  "@rBinary": {
+    "description": "Generation mode: the pool is 0 and 1."
+  },
+  "rHexadecimal": "Hexadecimal",
+  "@rHexadecimal": {
+    "description": "Generation mode: the pool is 0-9 and A-F."
+  },
+  "rClass": "Class",
+  "@rClass": {
+    "description": "Generation mode: the pool is built from the checked character classes."
+  },
+  "rManual": "Manual",
+  "@rManual": {
+    "description": "Generation mode: the pool is whatever the user types."
+  },
+
+  "rangeDigit": "[0–9]",
+  "@rangeDigit": {
+    "description": "Label of the digits checkbox. The dash is U+2013 EN DASH."
+  },
+  "rangeLowercase": "[a–z]",
+  "@rangeLowercase": {
+    "description": "Label of the lowercase letters checkbox. The dash is U+2013 EN DASH."
+  },
+  "rangeUppercase": "[A–Z]",
+  "@rangeUppercase": {
+    "description": "Label of the uppercase letters checkbox. The dash is U+2013 EN DASH."
+  },
+  "rangeSpecial": "[$%&()=?@#<>_£[]*]",
+  "@rangeSpecial": {
+    "description": "Label of the special characters checkbox, listing the characters themselves."
+  },
+
+  "manualHint": "abcd078[]",
+  "@manualHint": {
+    "description": "Placeholder in the manual character pool field, an example pool."
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Button that generates a new sequence."
+  },
+  "defaultLength": "32",
+  "@defaultLength": {
+    "description": "The sequence length the app starts with."
+  },
+  "length": "Length",
+  "@length": {
+    "description": "Label of the sequence length field."
+  },
+
+  "copy": "Copy",
+  "@copy": {
+    "description": "Action that copies the sequence to the clipboard."
+  },
+  "copiedToCb": "Copied to clipboard",
+  "@copiedToCb": {
+    "description": "Confirmation shown after copying a sequence."
+  },
+  "send": "Send",
+  "@send": {
+    "description": "Action that opens the system share sheet."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Action that stores the sequence under a name."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Dismisses a dialog without acting."
+  },
+  "saveAs": "Save as…",
+  "@saveAs": {
+    "description": "Message of the save dialog. Ends with U+2026 HORIZONTAL ELLIPSIS."
+  },
+  "saved": "Saved",
+  "@saved": {
+    "description": "App bar action that opens the saved sequences screen."
+  },
+  "saveHint": "Enter a name",
+  "@saveHint": {
+    "description": "Placeholder in the save dialog's name field."
+  },
+  "gotoSaved": "Click menu button to go to saved sequences",
+  "@gotoSaved": {
+    "description": "Hint shown in place of the result before anything has been generated."
+  },
+
+  "deleteAll": "Delete all",
+  "@deleteAll": {
+    "description": "App bar action that removes every saved sequence."
+  },
+  "titleActivityShowSaved": "Saved Sequences",
+  "@titleActivityShowSaved": {
+    "description": "Title of the saved sequences list screen."
+  },
+  "noSaved": "No saved entries",
+  "@noSaved": {
+    "description": "Empty state of the saved sequences list."
+  },
+  "areYouSure": "Are you sure?",
+  "@areYouSure": {
+    "description": "Message of the delete-all confirmation dialog."
+  },
+  "yesDeleteThem": "Yes, delete them!",
+  "@yesDeleteThem": {
+    "description": "Confirming button of the delete-all dialog."
+  },
+  "nothingToDelete": "There are no saved entries.",
+  "@nothingToDelete": {
+    "description": "Shown when delete-all is used on an empty list."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Context menu action that removes one saved sequence."
+  },
+
+  "titleActivityShowSingle": "Show Sequences",
+  "@titleActivityShowSingle": {
+    "description": "Title of the screen that displays one saved sequence."
+  },
+  "stringNotfound": "There isn't any saved string which matches this key.",
+  "@stringNotfound": {
+    "description": "Shown when a stored entry cannot be read back."
+  },
+
+  "coin": "Coin",
+  "@coin": {
+    "description": "App bar action that opens the coin flip screen."
+  },
+  "titleActivityLaunchCoin": "Launch Coin",
+  "@titleActivityLaunchCoin": {
+    "description": "Title of the coin flip screen."
+  },
+  "flip": "Flip",
+  "@flip": {
+    "description": "Button that starts a coin flip."
+  },
+  "clickOnFlip": "Click on flip",
+  "@clickOnFlip": {
+    "description": "Hint shown in the coin area before the first flip."
+  },
+
+  "lengthInvalid": "Enter a number between {min} and {max}",
+  "@lengthInvalid": {
+    "description": "Error shown under the length field when the value is missing or out of range.",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "4096"
+      }
+    }
+  },
+  "nameRequired": "Enter a name",
+  "@nameRequired": {
+    "description": "Error shown in the save dialog when the name is blank."
+  },
+  "overwriteTitle": "Overwrite?",
+  "@overwriteTitle": {
+    "description": "Title of the dialog shown when saving over an existing name."
+  },
+  "overwriteMessage": "\"{name}\" already exists. Replace it?",
+  "@overwriteMessage": {
+    "description": "Message of the overwrite confirmation dialog.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "my key"
+      }
+    }
+  },
+  "replace": "Replace",
+  "@replace": {
+    "description": "Confirming button of the overwrite dialog."
+  },
+  "entrySaved": "Saved as \"{name}\"",
+  "@entrySaved": {
+    "description": "Confirmation shown after storing a sequence.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "my key"
+      }
+    }
+  },
+  "emptyPool": "Select at least one character set",
+  "@emptyPool": {
+    "description": "Shown when Create is pressed with no characters to draw from."
+  },
+  "entryDeleted": "Deleted \"{name}\"",
+  "@entryDeleted": {
+    "description": "Confirmation shown after removing one saved sequence.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "my key"
+      }
+    }
+  },
+  "allEntriesDeleted": "All saved entries deleted",
+  "@allEntriesDeleted": {
+    "description": "Confirmation shown after removing every saved sequence."
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The legacy app's background. Used for the launch window so there is no
+         white flash before the Flutter UI draws its first frame. -->
+    <color name="launch_background">#FF333333</color>
+	<color name="ic_launcher_background">#333333</color>
+</resources>

@@ -1,0 +1,178 @@
+import 'dart:math';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:random_sequence_generator/models/class_selection.dart';
+import 'package:random_sequence_generator/models/generation_mode.dart';
+import 'package:random_sequence_generator/services/char_pools.dart';
+import 'package:random_sequence_generator/services/sequence_generator.dart';
+
+void main() {
+  group('CharPools', () {
+    test('match the legacy Java constants verbatim', () {
+      expect(CharPools.binary, '01');
+      expect(CharPools.hex, '0123456789ABCDEF');
+      expect(CharPools.digit, '0123456789');
+      expect(CharPools.lowercase, 'qwertyuiopasdfghjklzxcvbnm');
+      expect(CharPools.uppercase, 'QWERTYUIOPASDFGHJKLZXCVBNM');
+      expect(CharPools.special, r'$%&()=?@#<>_£[]*');
+    });
+  });
+
+  group('poolFor', () {
+    String poolFor(
+      GenerationMode mode, {
+      ClassSelection classes = ClassSelection.none,
+      String manualText = '',
+    }) => SequenceGenerator.poolFor(
+      mode: mode,
+      classes: classes,
+      manualText: manualText,
+    );
+
+    test('binary and hexadecimal ignore the other inputs', () {
+      expect(
+        poolFor(
+          GenerationMode.binary,
+          classes: const ClassSelection(digits: true),
+          manualText: 'ignored',
+        ),
+        CharPools.binary,
+      );
+      expect(
+        poolFor(GenerationMode.hexadecimal, manualText: 'ignored'),
+        CharPools.hex,
+      );
+    });
+
+    test('manual takes the field verbatim — no trim, no dedup', () {
+      expect(poolFor(GenerationMode.manual, manualText: '  aab  '), '  aab  ');
+      expect(poolFor(GenerationMode.manual, manualText: ''), '');
+    });
+
+    test('class mode concatenates in DIGIT, LAZ, CAZ, SPECIAL order '
+        'for all 16 combinations', () {
+      for (var bits = 0; bits < 16; bits++) {
+        final classes = ClassSelection(
+          digits: bits & 1 != 0,
+          lowercase: bits & 2 != 0,
+          uppercase: bits & 4 != 0,
+          special: bits & 8 != 0,
+        );
+        final expected = [
+          if (classes.digits) CharPools.digit,
+          if (classes.lowercase) CharPools.lowercase,
+          if (classes.uppercase) CharPools.uppercase,
+          if (classes.special) CharPools.special,
+        ].join();
+        expect(
+          poolFor(GenerationMode.charClass, classes: classes),
+          expected,
+          reason: 'combination $classes',
+        );
+      }
+    });
+
+    test('the tick order does not affect the pool order', () {
+      // Whichever order the user ticks them in, the result is the same string.
+      const all = ClassSelection(
+        digits: true,
+        lowercase: true,
+        uppercase: true,
+        special: true,
+      );
+      final built = const ClassSelection()
+          .copyWith(special: true)
+          .copyWith(uppercase: true)
+          .copyWith(digits: true)
+          .copyWith(lowercase: true);
+      expect(
+        poolFor(GenerationMode.charClass, classes: built),
+        poolFor(GenerationMode.charClass, classes: all),
+      );
+      expect(
+        poolFor(GenerationMode.charClass, classes: all),
+        '${CharPools.digit}${CharPools.lowercase}'
+        '${CharPools.uppercase}${CharPools.special}',
+      );
+    });
+
+    test('class mode with nothing checked yields an empty pool', () {
+      expect(poolFor(GenerationMode.charClass), isEmpty);
+    });
+  });
+
+  group('generate', () {
+    final generator = SequenceGenerator(random: Random(1));
+
+    test('honours the requested length at the boundaries', () {
+      for (final length in [1, 32, 4096]) {
+        expect(
+          generator.generate(pool: CharPools.hex, length: length).length,
+          length,
+        );
+      }
+    });
+
+    test('every character comes from the pool', () {
+      const pool = CharPools.special;
+      final result = generator.generate(pool: pool, length: 500);
+      for (final rune in result.runes) {
+        expect(pool.runes, contains(rune));
+      }
+    });
+
+    test('returns empty for an empty pool or a non-positive length', () {
+      expect(generator.generate(pool: '', length: 32), '');
+      expect(generator.generate(pool: CharPools.hex, length: 0), '');
+      expect(generator.generate(pool: CharPools.hex, length: -5), '');
+      expect(generator.generate(pool: '', length: 0), '');
+    });
+
+    test('bug 2 — the distribution is uniform across the whole pool', () {
+      // The legacy Math.round(Math.random() * lastIndex) gave the first and
+      // last pool characters half the weight of every other character.
+      const perSymbol = 10000;
+      const total = perSymbol * 16;
+      final result = SequenceGenerator(
+        random: Random(42),
+      ).generate(pool: CharPools.hex, length: total);
+
+      final counts = <int, int>{};
+      for (final rune in result.runes) {
+        counts[rune] = (counts[rune] ?? 0) + 1;
+      }
+
+      expect(counts.length, 16);
+      for (final rune in CharPools.hex.runes) {
+        final count = counts[rune] ?? 0;
+        expect(
+          count,
+          inInclusiveRange(perSymbol * 0.96, perSymbol * 1.04),
+          reason:
+              'symbol ${String.fromCharCode(rune)} landed at $count, '
+              'outside 4% of $perSymbol',
+        );
+      }
+    });
+
+    test('draws whole code points, never lone surrogates', () {
+      final result = generator.generate(pool: '🙂🙃', length: 10);
+      expect(result.runes.length, 10);
+      // Two UTF-16 code units per emoji, so no rune was split in half.
+      expect(result.length, 20);
+      for (final rune in result.runes) {
+        expect('🙂🙃'.runes, contains(rune));
+      }
+    });
+
+    test(
+      'a repeated character biases the output, as the legacy app allowed',
+      () {
+        final result = generator.generate(pool: 'aab', length: 2000);
+        final aCount = 'a'.allMatches(result).length;
+        // Two thirds of a uniform draw over ['a', 'a', 'b'].
+        expect(aCount, inInclusiveRange(2000 * 0.6, 2000 * 0.73));
+      },
+    );
+  });
+}

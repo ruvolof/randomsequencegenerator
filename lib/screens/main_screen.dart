@@ -1,0 +1,306 @@
+import 'package:flutter/material.dart';
+
+import '../l10n/generated/app_localizations.dart';
+import '../models/class_selection.dart';
+import '../models/generation_mode.dart';
+import '../models/saved_entry.dart';
+import '../services/sequence_generator.dart';
+import '../services/text_actions.dart';
+import '../state/saved_store_scope.dart';
+import '../theme/breakpoints.dart';
+import '../theme/dimens.dart';
+import '../widgets/class_range_selector.dart';
+import '../widgets/confirm_dialog.dart';
+import '../widgets/icon_action_button.dart';
+import '../widgets/length_field.dart';
+import '../widgets/result_display.dart';
+import '../widgets/save_as_dialog.dart';
+import 'coin_screen.dart';
+import 'saved_list_screen.dart';
+
+/// The generator screen.
+///
+/// All of its state lives here in [State], which Flutter keeps across the
+/// rebuild a rotation triggers — so the result and the action buttons survive
+/// it, which the legacy activity did not manage (bug 7).
+class MainScreen extends StatefulWidget {
+  const MainScreen({this.generator, super.key});
+
+  /// Injectable so a widget test can make generation deterministic.
+  final SequenceGenerator? generator;
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  late final SequenceGenerator _generator =
+      widget.generator ?? SequenceGenerator();
+
+  final TextEditingController _manualController = TextEditingController();
+  final TextEditingController _lengthController = TextEditingController();
+
+  GenerationMode _mode = GenerationMode.binary;
+  ClassSelection _classes = ClassSelection.none;
+  String _result = '';
+  bool _lengthTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _lengthController.text = _defaultLength;
+  }
+
+  // The legacy default_length string resource, kept as a string because that is
+  // what the field holds.
+  static const String _defaultLength = '32';
+
+  @override
+  void dispose() {
+    _manualController.dispose();
+    _lengthController.dispose();
+    super.dispose();
+  }
+
+  int? get _length => LengthField.parse(_lengthController.text);
+
+  bool get _lengthHasError => _lengthTouched && _length == null;
+
+  bool get _canCreate => _length != null;
+
+  void _create() {
+    final length = _length;
+    if (length == null) return;
+
+    final pool = SequenceGenerator.poolFor(
+      mode: _mode,
+      classes: _classes,
+      manualText: _manualController.text,
+    );
+
+    if (pool.isEmpty) {
+      // The legacy app silently did nothing here and hid the buttons. Hide them
+      // the same way, but say why.
+      setState(() => _result = '');
+      final messenger = ScaffoldMessenger.of(context);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).emptyPool)),
+        );
+      return;
+    }
+
+    setState(() {
+      _result = _generator.generate(pool: pool, length: length);
+    });
+  }
+
+  Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
+    final store = SavedStoreScope.read(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final sequence = _result;
+
+    final name = await showSaveAsDialog(context);
+    if (name == null) return;
+    if (!mounted) return;
+
+    if (store.containsName(name)) {
+      final replace = await showConfirmDialog(
+        context: context,
+        title: l10n.overwriteTitle,
+        message: l10n.overwriteMessage(name),
+        confirmLabel: l10n.replace,
+      );
+      if (!replace) return;
+      if (!mounted) return;
+    }
+
+    await store.upsert(
+      SavedEntry(
+        name: name,
+        sequence: sequence,
+        createdAt: DateTime.now(),
+        mode: _mode,
+      ),
+    );
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.entrySaved(name))));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.titleActivityRsgMain),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const SavedListScreen()),
+            ),
+            child: Text(l10n.saved),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => const CoinScreen())),
+            child: Text(l10n.coin),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(Dimens.mainPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _ModeRadioGroup(
+              mode: _mode,
+              onChanged: (mode) => setState(() => _mode = mode),
+            ),
+            if (_mode == GenerationMode.charClass) ...[
+              const SizedBox(height: 8),
+              ClassRangeSelector(
+                selection: _classes,
+                onChanged: (classes) => setState(() => _classes = classes),
+              ),
+            ],
+            if (_mode == GenerationMode.manual) ...[
+              const SizedBox(height: 8),
+              TextField(
+                controller: _manualController,
+                decoration: InputDecoration(hintText: l10n.manualHint),
+              ),
+            ],
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    l10n.length,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: LengthField(
+                    controller: _lengthController,
+                    hasError: _lengthHasError,
+                    onChanged: (_) => setState(() => _lengthTouched = true),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: SizedBox(
+                width: Dimens.createButton,
+                child: ElevatedButton(
+                  onPressed: _canCreate ? _create : null,
+                  child: Text(l10n.create),
+                ),
+              ),
+            ),
+            // Hidden until the first successful generation, and hidden again
+            // whenever the pool comes out empty — as in the legacy screen.
+            if (_result.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Center(
+                child: SizedBox(
+                  // Same width as Create, so copy, save and share line up with
+                  // its left edge, centre and right edge by construction.
+                  width: Dimens.createButton,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconActionButton(
+                        icon: Icons.content_copy,
+                        label: l10n.copy,
+                        onPressed: () =>
+                            TextActions.copyToClipboard(context, _result),
+                      ),
+                      IconActionButton(
+                        icon: Icons.save,
+                        label: l10n.save,
+                        onPressed: _save,
+                      ),
+                      IconActionButton(
+                        icon: Icons.share,
+                        label: l10n.send,
+                        onPressed: () =>
+                            TextActions.shareText(context, _result),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            ResultDisplay(text: _result, emptyHint: l10n.gotoSaved),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The vertical radio group, sized to the legacy row heights.
+///
+/// Deliberately not `RadioListTile`, which is full-width with heavy padding and
+/// nothing like the legacy `wrap_content` rows.
+class _ModeRadioGroup extends StatelessWidget {
+  const _ModeRadioGroup({required this.mode, required this.onChanged});
+
+  final GenerationMode mode;
+  final ValueChanged<GenerationMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = {
+      GenerationMode.binary: l10n.rBinary,
+      GenerationMode.hexadecimal: l10n.rHexadecimal,
+      GenerationMode.charClass: l10n.rClass,
+      GenerationMode.manual: l10n.rManual,
+    };
+    final rowHeight = Breakpoints.isTablet(context)
+        ? Dimens.radioRowTablet
+        : Dimens.radioRow;
+
+    return RadioGroup<GenerationMode>(
+      groupValue: mode,
+      onChanged: (value) {
+        if (value != null) onChanged(value);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final entry in labels.entries)
+            SizedBox(
+              height: rowHeight,
+              child: InkWell(
+                onTap: () => onChanged(entry.key),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Radio<GenerationMode>(
+                      value: entry.key,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(entry.value),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
