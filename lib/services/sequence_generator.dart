@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../models/class_selection.dart';
 import '../models/generation_mode.dart';
+import '../models/uuid_options.dart';
 import 'char_pools.dart';
 
 /// Builds character pools and draws sequences from them.
@@ -42,6 +43,9 @@ class SequenceGenerator {
       if (classes.uppercase) CharPools.uppercase,
       if (classes.special) CharPools.special,
     ].join(),
+    // Not an oversight: a UUID is not drawn from a pool. [generateUuid] is the
+    // entry point for that mode.
+    GenerationMode.uuid => '',
   };
 
   /// A sequence of [length] characters drawn uniformly from [pool].
@@ -59,5 +63,32 @@ class SequenceGenerator {
       buffer.writeCharCode(codePoints[_random.nextInt(codePoints.length)]);
     }
     return buffer.toString();
+  }
+
+  /// A version 4 (random) UUID, rendered according to [options].
+  ///
+  /// Drawn from the same injected [Random] as [generate] — [Random.secure] in
+  /// the app, because a UUID used as a token or a key is as much a secret as a
+  /// generated password.
+  String generateUuid(UuidOptions options) {
+    final bytes = List<int>.generate(
+      16,
+      (_) => _random.nextInt(256),
+      growable: false,
+    );
+    // The six bits RFC 4122 pins down: version 4 in the high nibble of octet 6,
+    // variant 10xx in the two high bits of octet 8. Everything else is random.
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    String hex(int start, int end) => [
+      for (var i = start; i < end; i++)
+        bytes[i].toRadixString(16).padLeft(2, '0'),
+    ].join();
+
+    final groups = [hex(0, 4), hex(4, 6), hex(6, 8), hex(8, 10), hex(10, 16)];
+    var uuid = groups.join(options.hyphens ? '-' : '');
+    if (options.uppercase) uuid = uuid.toUpperCase();
+    return options.braces ? '{$uuid}' : uuid;
   }
 }

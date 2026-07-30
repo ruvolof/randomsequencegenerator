@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:random_sequence_generator/models/generation_mode.dart';
 import 'package:random_sequence_generator/screens/coin_screen.dart';
 import 'package:random_sequence_generator/screens/main_screen.dart';
 import 'package:random_sequence_generator/screens/saved_list_screen.dart';
@@ -35,10 +36,12 @@ void main() {
       expect(find.text('Hexadecimal'), findsOneWidget);
       expect(find.text('Class'), findsOneWidget);
       expect(find.text('Manual'), findsOneWidget);
+      expect(find.text('UUID/GUID'), findsOneWidget);
 
-      // Neither the class checkboxes nor the manual field are present.
+      // None of the mode-specific blocks are present.
       expect(find.text('[0–9]'), findsNothing);
       expect(find.text('abcd078[]'), findsNothing);
+      expect(find.text('Hyphens'), findsNothing);
 
       // The empty-state hint stands in for the result.
       expect(
@@ -344,6 +347,134 @@ void main() {
         expect(store.entries, hasLength(1));
         expect(store.entries.single.sequence, second);
         expect(store.entries.single.sequence, isNot(first));
+      });
+    });
+
+    group('UUID mode', () {
+      // The canonical rendering, which is what the default checkboxes produce.
+      final canonical = RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
+        r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+      );
+
+      Future<void> selectUuid(WidgetTester tester) async {
+        await tester.tap(find.text('UUID/GUID'));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('reveals the format checkboxes and hides the length row', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        expect(find.text('Length'), findsOneWidget);
+
+        await selectUuid(tester);
+
+        expect(find.text('Uppercase'), findsOneWidget);
+        expect(find.text('Hyphens'), findsOneWidget);
+        expect(find.text('Braces'), findsOneWidget);
+        expect(find.text('Length'), findsNothing);
+        expect(find.byType(TextField), findsNothing);
+
+        // And back again.
+        await tester.tap(find.text('Binary'));
+        await tester.pumpAndSettle();
+        expect(find.text('Uppercase'), findsNothing);
+        expect(find.text('Length'), findsOneWidget);
+      });
+
+      testWidgets('Create yields a v4 UUID and reveals the actions', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await selectUuid(tester);
+
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+
+        expect(shownResult(tester), matches(canonical));
+        expect(find.byTooltip('Copy'), findsOneWidget);
+        expect(find.byTooltip('Save'), findsOneWidget);
+        expect(find.byTooltip('Send'), findsOneWidget);
+      });
+
+      testWidgets('the checkboxes change the rendering', (tester) async {
+        await tester.pumpApp(mainScreen());
+        await selectUuid(tester);
+
+        await tester.tap(find.text('Uppercase'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Braces'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+
+        expect(
+          shownResult(tester),
+          matches(
+            RegExp(
+              r'^\{[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-'
+              r'[89AB][0-9A-F]{3}-[0-9A-F]{12}\}$',
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Hyphens'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+
+        expect(shownResult(tester), matches(RegExp(r'^\{[0-9A-F]{32}\}$')));
+      });
+
+      testWidgets('an unusable length left behind does not disable Create', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await tester.enterText(find.byType(TextField), '');
+        await tester.pumpAndSettle();
+        expect(
+          tester
+              .widget<ElevatedButton>(
+                find.widgetWithText(ElevatedButton, 'Create'),
+              )
+              .onPressed,
+          isNull,
+        );
+
+        await selectUuid(tester);
+
+        expect(
+          tester
+              .widget<ElevatedButton>(
+                find.widgetWithText(ElevatedButton, 'Create'),
+              )
+              .onPressed,
+          isNotNull,
+        );
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        expect(shownResult(tester), matches(canonical));
+      });
+
+      testWidgets('a UUID saves like any other sequence', (tester) async {
+        final store = await tester.pumpApp(
+          mainScreen(),
+          store: SavedStore(FakeKeyValueStore()),
+        );
+        await selectUuid(tester);
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        final result = shownResult(tester);
+
+        await tester.tap(find.byTooltip('Save'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField).last, 'id');
+        await tester.tap(find.widgetWithText(TextButton, 'Save'));
+        await tester.pumpAndSettle();
+
+        expect(store.entries.single.sequence, result);
+        expect(store.entries.single.mode, GenerationMode.uuid);
       });
     });
 

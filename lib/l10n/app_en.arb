@@ -26,6 +26,23 @@
   "@rManual": {
     "description": "Generation mode: the pool is whatever the user types."
   },
+  "rUuid": "UUID/GUID",
+  "@rUuid": {
+    "description": "Generation mode: a version 4 UUID, also known as a GUID. Both acronyms are usually left untranslated."
+  },
+
+  "uuidUppercase": "Uppercase",
+  "@uuidUppercase": {
+    "description": "Checkbox that renders the UUID's hexadecimal digits in capitals."
+  },
+  "uuidHyphens": "Hyphens",
+  "@uuidHyphens": {
+    "description": "Checkbox that separates the five UUID groups with hyphens."
+  },
+  "uuidBraces": "Braces",
+  "@uuidBraces": {
+    "description": "Checkbox that wraps the UUID in curly braces, the Microsoft GUID style."
+  },
 
   "rangeDigit": "[0–9]",
   "@rangeDigit": {

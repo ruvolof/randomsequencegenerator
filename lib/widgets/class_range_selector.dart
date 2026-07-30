@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../models/class_selection.dart';
+import 'labelled_checkbox.dart';
 
 /// The four character-class checkboxes: three across one row and the special
 /// characters on a second row beneath, as in the legacy layout.
@@ -19,22 +20,22 @@ class ClassRangeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    final digits = _ClassCheckbox(
+    final digits = LabelledCheckbox(
       label: l10n.rangeDigit,
       value: selection.digits,
       onChanged: (value) => onChanged(selection.copyWith(digits: value)),
     );
-    final lowercase = _ClassCheckbox(
+    final lowercase = LabelledCheckbox(
       label: l10n.rangeLowercase,
       value: selection.lowercase,
       onChanged: (value) => onChanged(selection.copyWith(lowercase: value)),
     );
-    final uppercase = _ClassCheckbox(
+    final uppercase = LabelledCheckbox(
       label: l10n.rangeUppercase,
       value: selection.uppercase,
       onChanged: (value) => onChanged(selection.copyWith(uppercase: value)),
     );
-    final special = _ClassCheckbox(
+    final special = LabelledCheckbox(
       label: l10n.rangeSpecial,
       value: selection.special,
       onChanged: (value) => onChanged(selection.copyWith(special: value)),
@@ -59,38 +60,6 @@ class ClassRangeSelector extends StatelessWidget {
         ),
         special,
       ],
-    );
-  }
-}
-
-class _ClassCheckbox extends StatelessWidget {
-  const _ClassCheckbox({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onChanged(!value),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Checkbox(
-            value: value,
-            onChanged: (next) => onChanged(next ?? false),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          const SizedBox(width: 4),
-          Text(label),
-          const SizedBox(width: 8),
-        ],
-      ),
     );
   }
 }

@@ -7,7 +7,11 @@ enum GenerationMode {
   charClass,
 
   /// The pool is whatever the user typed, taken verbatim.
-  manual;
+  manual,
+
+  /// The odd one out: no pool and no length, a version 4 UUID rendered
+  /// according to the ticked format options.
+  uuid;
 
   /// The value persisted alongside a saved entry. Kept independent of the
   /// declaration order so reordering the enum cannot invalidate stored data.
@@ -16,6 +20,7 @@ enum GenerationMode {
     GenerationMode.hexadecimal => 'hexadecimal',
     GenerationMode.charClass => 'class',
     GenerationMode.manual => 'manual',
+    GenerationMode.uuid => 'uuid',
   };
 
   /// Returns null for an unknown or missing key rather than throwing, so one

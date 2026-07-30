@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:random_sequence_generator/models/class_selection.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
+import 'package:random_sequence_generator/models/uuid_options.dart';
 import 'package:random_sequence_generator/services/char_pools.dart';
 import 'package:random_sequence_generator/services/sequence_generator.dart';
 
@@ -99,6 +100,17 @@ void main() {
     test('class mode with nothing checked yields an empty pool', () {
       expect(poolFor(GenerationMode.charClass), isEmpty);
     });
+
+    test('uuid mode has no pool — generateUuid is its entry point', () {
+      expect(
+        poolFor(
+          GenerationMode.uuid,
+          classes: const ClassSelection(digits: true),
+          manualText: 'ignored',
+        ),
+        isEmpty,
+      );
+    });
   });
 
   group('generate', () {
@@ -174,5 +186,96 @@ void main() {
         expect(aCount, inInclusiveRange(2000 * 0.6, 2000 * 0.73));
       },
     );
+  });
+
+  group('generateUuid', () {
+    final generator = SequenceGenerator(random: Random(7));
+
+    // The canonical form, with the version nibble and the variant bits pinned
+    // where RFC 4122 puts them.
+    final canonical = RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    );
+
+    test('defaults to the canonical RFC 4122 rendering', () {
+      for (var i = 0; i < 200; i++) {
+        final uuid = generator.generateUuid(UuidOptions.defaults);
+        expect(uuid, matches(canonical), reason: 'draw $i');
+      }
+    });
+
+    test('the version and variant survive every option combination', () {
+      for (var bits = 0; bits < 8; bits++) {
+        final options = UuidOptions(
+          uppercase: bits & 1 != 0,
+          hyphens: bits & 2 != 0,
+          braces: bits & 4 != 0,
+        );
+        final uuid = generator.generateUuid(options);
+
+        // Strip the rendering back to the canonical form and check that.
+        var bare = uuid;
+        if (options.braces) {
+          expect(bare.startsWith('{'), isTrue, reason: '$options');
+          expect(bare.endsWith('}'), isTrue, reason: '$options');
+          bare = bare.substring(1, bare.length - 1);
+        } else {
+          expect(bare, isNot(contains('{')), reason: '$options');
+        }
+        if (options.uppercase) {
+          expect(bare, bare.toUpperCase(), reason: '$options');
+          bare = bare.toLowerCase();
+        } else {
+          expect(bare, bare.toLowerCase(), reason: '$options');
+        }
+        if (!options.hyphens) {
+          expect(bare, hasLength(32), reason: '$options');
+          bare =
+              '${bare.substring(0, 8)}-${bare.substring(8, 12)}-'
+              '${bare.substring(12, 16)}-${bare.substring(16, 20)}-'
+              '${bare.substring(20)}';
+        }
+
+        expect(bare, matches(canonical), reason: '$options');
+        expect(
+          uuid.length,
+          (options.hyphens ? 36 : 32) + (options.braces ? 2 : 0),
+          reason: '$options',
+        );
+      }
+    });
+
+    test('renders the GUID style when uppercase and braces are ticked', () {
+      final uuid = generator.generateUuid(
+        const UuidOptions(uppercase: true, braces: true),
+      );
+      expect(
+        uuid,
+        matches(
+          RegExp(
+            r'^\{[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-'
+            r'[89AB][0-9A-F]{3}-[0-9A-F]{12}\}$',
+          ),
+        ),
+      );
+    });
+
+    test('a seeded Random makes it reproducible', () {
+      final first = SequenceGenerator(
+        random: Random(11),
+      ).generateUuid(UuidOptions.defaults);
+      final second = SequenceGenerator(
+        random: Random(11),
+      ).generateUuid(UuidOptions.defaults);
+      expect(first, second);
+    });
+
+    test('draws are distinct', () {
+      final seen = {
+        for (var i = 0; i < 200; i++)
+          SequenceGenerator().generateUuid(UuidOptions.defaults),
+      };
+      expect(seen, hasLength(200));
+    });
   });
 }

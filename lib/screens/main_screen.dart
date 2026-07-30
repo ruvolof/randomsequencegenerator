@@ -4,6 +4,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/class_selection.dart';
 import '../models/generation_mode.dart';
 import '../models/saved_entry.dart';
+import '../models/uuid_options.dart';
 import '../services/sequence_generator.dart';
 import '../services/text_actions.dart';
 import '../state/saved_store_scope.dart';
@@ -15,6 +16,7 @@ import '../widgets/icon_action_button.dart';
 import '../widgets/length_field.dart';
 import '../widgets/result_display.dart';
 import '../widgets/save_as_dialog.dart';
+import '../widgets/uuid_options_selector.dart';
 import 'coin_screen.dart';
 import 'saved_list_screen.dart';
 
@@ -42,6 +44,7 @@ class _MainScreenState extends State<MainScreen> {
 
   GenerationMode _mode = GenerationMode.binary;
   ClassSelection _classes = ClassSelection.none;
+  UuidOptions _uuidOptions = UuidOptions.defaults;
   String _result = '';
   bool _lengthTouched = false;
 
@@ -66,9 +69,16 @@ class _MainScreenState extends State<MainScreen> {
 
   bool get _lengthHasError => _lengthTouched && _length == null;
 
-  bool get _canCreate => _length != null;
+  /// UUID mode has no length, so a stale unusable value left in the hidden
+  /// field must not keep Create disabled.
+  bool get _canCreate => _mode == GenerationMode.uuid || _length != null;
 
   void _create() {
+    if (_mode == GenerationMode.uuid) {
+      setState(() => _result = _generator.generateUuid(_uuidOptions));
+      return;
+    }
+
     final length = _length;
     if (length == null) return;
 
@@ -175,41 +185,42 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: InputDecoration(hintText: l10n.manualHint),
               ),
             ],
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    l10n.length,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: LengthField(
-                    controller: _lengthController,
-                    hasError: _lengthHasError,
-                    onChanged: (_) => setState(() => _lengthTouched = true),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: SizedBox(
-                width: Dimens.createButton,
-                child: ElevatedButton(
-                  onPressed: _canCreate ? _create : null,
-                  child: Text(l10n.create),
-                ),
+            if (_mode == GenerationMode.uuid) ...[
+              const SizedBox(height: 8),
+              UuidOptionsSelector(
+                selection: _uuidOptions,
+                onChanged: (options) => setState(() => _uuidOptions = options),
               ),
-            ),
+            ],
+            // A UUID is 128 bits whatever the user wants, so the field would be
+            // a dead control in that mode.
+            if (_mode != GenerationMode.uuid) ...[
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      l10n.length,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: LengthField(
+                      controller: _lengthController,
+                      hasError: _lengthHasError,
+                      onChanged: (_) => setState(() => _lengthTouched = true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             // Hidden until the first successful generation, and hidden again
             // whenever the pool comes out empty — as in the legacy screen.
             if (_result.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Center(
                 child: SizedBox(
                   // Same width as Create, so copy, save and share line up with
@@ -245,6 +256,27 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
       ),
+      // Pinned to the bottom rather than sitting in the middle of the content:
+      // the screen's primary action stays under the thumb, stays put while the
+      // result scrolls, and rides above the keyboard in Manual mode.
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Dimens.mainPadding),
+          // heightFactor keeps the bar exactly as tall as the button. Without
+          // it Center fills the whole Scaffold and leaves the body no height.
+          child: Center(
+            heightFactor: 1,
+            child: SizedBox(
+              // Same width as the row of action buttons above it.
+              width: Dimens.createButton,
+              child: ElevatedButton(
+                onPressed: _canCreate ? _create : null,
+                child: Text(l10n.create),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -267,6 +299,7 @@ class _ModeRadioGroup extends StatelessWidget {
       GenerationMode.hexadecimal: l10n.rHexadecimal,
       GenerationMode.charClass: l10n.rClass,
       GenerationMode.manual: l10n.rManual,
+      GenerationMode.uuid: l10n.rUuid,
     };
     final rowHeight = Breakpoints.isTablet(context)
         ? Dimens.radioRowTablet
