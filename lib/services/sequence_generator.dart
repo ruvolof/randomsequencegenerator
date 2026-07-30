@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../models/class_selection.dart';
 import '../models/generation_mode.dart';
+import '../models/mask_pattern.dart';
 import '../models/uuid_options.dart';
 import 'char_pools.dart';
 
@@ -19,6 +20,10 @@ class SequenceGenerator {
   /// The longest sequence the UI accepts. The legacy app had no bound at all
   /// and crashed on anything unparseable.
   static const int maxLength = 4096;
+
+  /// The longest mask the UI lets the user type. What that mask *expands* to is
+  /// bounded separately, by [MaskPattern.maxOutputLength].
+  static const int maxMaskLength = 256;
 
   final Random _random;
 
@@ -46,6 +51,9 @@ class SequenceGenerator {
     // Not an oversight: a UUID is not drawn from a pool. [generateUuid] is the
     // entry point for that mode.
     GenerationMode.uuid => '',
+    // Nor is a mask, which has one pool per position rather than one overall.
+    // [generateFromMask] is the entry point for that mode.
+    GenerationMode.mask => '',
   };
 
   /// A sequence of [length] characters drawn uniformly from [pool].
@@ -61,6 +69,28 @@ class SequenceGenerator {
       // nextInt is uniform. The legacy `Math.round(Math.random() * lastIndex)`
       // gave the first and last pool characters half the weight of the rest.
       buffer.writeCharCode(codePoints[_random.nextInt(codePoints.length)]);
+    }
+    return buffer.toString();
+  }
+
+  /// The string [pattern] describes: each placeholder filled from its own pool,
+  /// each literal copied through.
+  ///
+  /// Returns `''` for an invalid pattern rather than throwing, the same way
+  /// [generate] handles an empty pool. Delegates every draw to [generate], so
+  /// mask output inherits its uniform, cryptographically secure randomness.
+  String generateFromMask(MaskPattern pattern) {
+    if (!pattern.isValid) return '';
+    final buffer = StringBuffer();
+    for (final segment in pattern.segments) {
+      final pool = segment.pool;
+      if (pool != null) {
+        buffer.write(generate(pool: pool, length: segment.count));
+      } else {
+        for (var i = 0; i < segment.count; i++) {
+          buffer.writeCharCode(segment.literal!);
+        }
+      }
     }
     return buffer.toString();
   }

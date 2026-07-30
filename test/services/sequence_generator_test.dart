@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:random_sequence_generator/models/class_selection.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
+import 'package:random_sequence_generator/models/mask_pattern.dart';
 import 'package:random_sequence_generator/models/uuid_options.dart';
 import 'package:random_sequence_generator/services/char_pools.dart';
 import 'package:random_sequence_generator/services/sequence_generator.dart';
@@ -276,6 +277,100 @@ void main() {
           SequenceGenerator().generateUuid(UuidOptions.defaults),
       };
       expect(seen, hasLength(200));
+    });
+  });
+
+  group('poolFor mask', () {
+    test('has no pool — generateFromMask is its entry point', () {
+      expect(
+        SequenceGenerator.poolFor(
+          mode: GenerationMode.mask,
+          classes: const ClassSelection(digits: true),
+          manualText: 'ignored',
+        ),
+        isEmpty,
+      );
+    });
+  });
+
+  group('generateFromMask', () {
+    final generator = SequenceGenerator(random: Random(42));
+
+    test('output length equals the pattern length', () {
+      for (final mask in ['AA###AA', 'a{5}#{3}', 'h{4}:H{4}', '#-{3}#']) {
+        final pattern = MaskPattern.parse(mask);
+        expect(
+          generator.generateFromMask(pattern).length,
+          pattern.outputLength,
+          reason: mask,
+        );
+      }
+    });
+
+    test('every placeholder character comes from its own pool', () {
+      // One draw per token, generously long, each checked against its pool.
+      final byToken = {
+        '#': CharPools.digit,
+        'a': CharPools.lowercase,
+        'A': CharPools.uppercase,
+        '?': CharPools.lowercase + CharPools.uppercase,
+        '*': CharPools.digit + CharPools.lowercase + CharPools.uppercase,
+        'h': CharPools.hexLowercase,
+        'H': CharPools.hex,
+        '%': CharPools.special,
+      };
+      byToken.forEach((token, pool) {
+        final result = generator.generateFromMask(
+          MaskPattern.parse('$token{200}'),
+        );
+        for (final rune in result.runes) {
+          expect(
+            pool.runes,
+            contains(rune),
+            reason: 'token $token produced ${String.fromCharCode(rune)}',
+          );
+        }
+      });
+    });
+
+    test('literals land at the right offsets, whatever is drawn', () {
+      for (var i = 0; i < 50; i++) {
+        final result = generator.generateFromMask(MaskPattern.parse('AA-###'));
+        expect(result, matches(RegExp(r'^[A-Z]{2}-\d{3}$')), reason: 'draw $i');
+      }
+    });
+
+    test('a plate mask keeps its shape over many draws', () {
+      final plate = RegExp(r'^[A-Z]{2}\d{3}[A-Z]{2}$');
+      final pattern = MaskPattern.parse('AA###AA');
+      for (var i = 0; i < 500; i++) {
+        expect(generator.generateFromMask(pattern), matches(plate));
+      }
+    });
+
+    test('the two hex tokens keep their case apart', () {
+      final result = generator.generateFromMask(MaskPattern.parse('h{8}H{8}'));
+      expect(result.substring(0, 8), matches(RegExp(r'^[0-9a-f]{8}$')));
+      expect(result.substring(8), matches(RegExp(r'^[0-9A-F]{8}$')));
+    });
+
+    test('an invalid pattern generates nothing rather than throwing', () {
+      for (final mask in ['', 'bcd', 'a{0}', 'A{9999}']) {
+        expect(
+          generator.generateFromMask(MaskPattern.parse(mask)),
+          isEmpty,
+          reason: 'mask "$mask"',
+        );
+      }
+    });
+
+    test('draws vary — the mask is filled at random, not fixed', () {
+      final pattern = MaskPattern.parse('AA###AA');
+      final seen = {
+        for (var i = 0; i < 100; i++) generator.generateFromMask(pattern),
+      };
+      // 7 random positions over large pools: collisions are vanishingly rare.
+      expect(seen.length, greaterThan(90));
     });
   });
 }

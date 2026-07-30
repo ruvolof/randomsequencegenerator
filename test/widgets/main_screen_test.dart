@@ -478,6 +478,144 @@ void main() {
       });
     });
 
+    group('Mask mode', () {
+      final plate = RegExp(r'^[A-Z]{2}\d{3}[A-Z]{2}$');
+
+      Future<void> selectMask(WidgetTester tester) async {
+        await tester.tap(find.text('Mask'));
+        await tester.pumpAndSettle();
+      }
+
+      // The mask field is the only TextField on screen in this mode; enter its
+      // text and let the screen re-parse.
+      Future<void> enterMask(WidgetTester tester, String mask) async {
+        await tester.enterText(find.byType(TextField), mask);
+        await tester.pumpAndSettle();
+      }
+
+      bool createEnabled(WidgetTester tester) =>
+          tester
+              .widget<ElevatedButton>(
+                find.widgetWithText(ElevatedButton, 'Create'),
+              )
+              .onPressed !=
+          null;
+
+      testWidgets('reveals the field and the legend, hides the length row', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        expect(find.text('Length'), findsOneWidget);
+
+        await selectMask(tester);
+
+        expect(find.text('How to write a mask'), findsOneWidget);
+        expect(find.byType(TextField), findsOneWidget);
+        expect(find.text('Length'), findsNothing);
+
+        await tester.tap(find.text('Binary'));
+        await tester.pumpAndSettle();
+        expect(find.text('How to write a mask'), findsNothing);
+        expect(find.text('Length'), findsOneWidget);
+      });
+
+      testWidgets('the legend lists every mask token', (tester) async {
+        await tester.pumpApp(mainScreen());
+        await selectMask(tester);
+
+        // A drift guard: every pool token the parser understands is documented.
+        for (final token in CharPools.maskPools.keys) {
+          expect(
+            find.text(token),
+            findsWidgets,
+            reason: 'token $token missing from the legend',
+          );
+        }
+      });
+
+      testWidgets('Create is disabled until a usable mask is typed', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await selectMask(tester);
+        expect(createEnabled(tester), isFalse);
+
+        await enterMask(tester, 'AA###AA');
+        expect(createEnabled(tester), isTrue);
+
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        expect(shownResult(tester), matches(plate));
+        expect(find.byTooltip('Copy'), findsOneWidget);
+        expect(find.byTooltip('Save'), findsOneWidget);
+        expect(find.byTooltip('Send'), findsOneWidget);
+      });
+
+      testWidgets('a mask with no placeholder shows the error and blocks '
+          'Create', (tester) async {
+        await tester.pumpApp(mainScreen());
+        await selectMask(tester);
+
+        await enterMask(tester, 'xyz-');
+        expect(
+          find.text('Add at least one placeholder, like AA###AA'),
+          findsOneWidget,
+        );
+        expect(createEnabled(tester), isFalse);
+      });
+
+      testWidgets('a repetition fills the right number of characters', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await selectMask(tester);
+
+        await enterMask(tester, 'a{5}');
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        expect(shownResult(tester), matches(RegExp(r'^[a-z]{5}$')));
+      });
+
+      testWidgets('a stale unusable length does not disable Create', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await tester.enterText(find.byType(TextField), '');
+        await tester.pumpAndSettle();
+        expect(createEnabled(tester), isFalse);
+
+        await selectMask(tester);
+        await enterMask(tester, 'AA###AA');
+        expect(createEnabled(tester), isTrue);
+      });
+
+      testWidgets('a mask result saves with the mask mode', (tester) async {
+        final store = await tester.pumpApp(
+          mainScreen(),
+          store: SavedStore(FakeKeyValueStore()),
+        );
+        await selectMask(tester);
+        await enterMask(tester, 'AA###AA');
+        await tester.tap(find.text('Create'));
+        await tester.pumpAndSettle();
+        final result = shownResult(tester);
+
+        // The legend makes the column taller than the test viewport, so the
+        // action row can sit below the fold — scroll it in before tapping.
+        await tester.ensureVisible(find.byTooltip('Save'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Save'));
+        await tester.pumpAndSettle();
+        // The save dialog's field is now also on screen; it is the last one.
+        await tester.enterText(find.byType(TextField).last, 'plate');
+        await tester.tap(find.widgetWithText(TextButton, 'Save'));
+        await tester.pumpAndSettle();
+
+        expect(store.entries.single.sequence, result);
+        expect(store.entries.single.mode, GenerationMode.mask);
+      });
+    });
+
     testWidgets('the app bar pushes the saved list and the coin screen', (
       tester,
     ) async {

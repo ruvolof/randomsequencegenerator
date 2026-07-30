@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/class_selection.dart';
 import '../models/generation_mode.dart';
+import '../models/mask_pattern.dart';
 import '../models/saved_entry.dart';
 import '../models/uuid_options.dart';
 import '../services/sequence_generator.dart';
@@ -14,6 +15,8 @@ import '../widgets/class_range_selector.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/icon_action_button.dart';
 import '../widgets/length_field.dart';
+import '../widgets/mask_field.dart';
+import '../widgets/mask_legend.dart';
 import '../widgets/result_display.dart';
 import '../widgets/save_as_dialog.dart';
 import '../widgets/uuid_options_selector.dart';
@@ -41,12 +44,14 @@ class _MainScreenState extends State<MainScreen> {
 
   final TextEditingController _manualController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
+  final TextEditingController _maskController = TextEditingController();
 
   GenerationMode _mode = GenerationMode.binary;
   ClassSelection _classes = ClassSelection.none;
   UuidOptions _uuidOptions = UuidOptions.defaults;
   String _result = '';
   bool _lengthTouched = false;
+  bool _maskTouched = false;
 
   @override
   void initState() {
@@ -62,6 +67,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _manualController.dispose();
     _lengthController.dispose();
+    _maskController.dispose();
     super.dispose();
   }
 
@@ -69,13 +75,28 @@ class _MainScreenState extends State<MainScreen> {
 
   bool get _lengthHasError => _lengthTouched && _length == null;
 
-  /// UUID mode has no length, so a stale unusable value left in the hidden
-  /// field must not keep Create disabled.
-  bool get _canCreate => _mode == GenerationMode.uuid || _length != null;
+  MaskPattern get _maskPattern => MaskPattern.parse(_maskController.text);
+
+  /// The modes without a length must not be held back by a stale unusable value
+  /// left behind in the hidden field.
+  bool get _canCreate => switch (_mode) {
+    GenerationMode.uuid => true,
+    GenerationMode.mask => _maskPattern.isValid,
+    _ => _length != null,
+  };
 
   void _create() {
     if (_mode == GenerationMode.uuid) {
       setState(() => _result = _generator.generateUuid(_uuidOptions));
+      return;
+    }
+
+    if (_mode == GenerationMode.mask) {
+      final pattern = _maskPattern;
+      // Create is disabled while the mask is unusable, and the field carries the
+      // reason — so unlike the empty pool below there is nothing to announce.
+      if (!pattern.isValid) return;
+      setState(() => _result = _generator.generateFromMask(pattern));
       return;
     }
 
@@ -192,9 +213,19 @@ class _MainScreenState extends State<MainScreen> {
                 onChanged: (options) => setState(() => _uuidOptions = options),
               ),
             ],
-            // A UUID is 128 bits whatever the user wants, so the field would be
-            // a dead control in that mode.
-            if (_mode != GenerationMode.uuid) ...[
+            if (_mode == GenerationMode.mask) ...[
+              const SizedBox(height: 8),
+              MaskField(
+                controller: _maskController,
+                // Quiet until the user has typed, like the length field: an
+                // empty mask on arrival is not a mistake yet.
+                error: _maskTouched ? _maskPattern.error : null,
+                onChanged: (_) => setState(() => _maskTouched = true),
+              ),
+              const SizedBox(height: 8),
+              const MaskLegend(),
+            ],
+            if (_mode.usesLength) ...[
               const SizedBox(height: 16),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,6 +331,7 @@ class _ModeRadioGroup extends StatelessWidget {
       GenerationMode.charClass: l10n.rClass,
       GenerationMode.manual: l10n.rManual,
       GenerationMode.uuid: l10n.rUuid,
+      GenerationMode.mask: l10n.rMask,
     };
     final rowHeight = Breakpoints.isTablet(context)
         ? Dimens.radioRowTablet

@@ -31,6 +31,11 @@
     "description": "Generation mode: a version 4 UUID, also known as a GUID. Both acronyms are usually left untranslated."
   },
 
+  "rMask": "Mask",
+  "@rMask": {
+    "description": "Generation mode: the user writes a template and each placeholder in it is filled at random."
+  },
+
   "uuidUppercase": "Uppercase",
   "@uuidUppercase": {
     "description": "Checkbox that renders the UUID's hexadecimal digits in capitals."
@@ -42,6 +47,81 @@
   "uuidBraces": "Braces",
   "@uuidBraces": {
     "description": "Checkbox that wraps the UUID in curly braces, the Microsoft GUID style."
+  },
+
+  "maskHint": "AA###AA",
+  "@maskHint": {
+    "description": "Placeholder in the mask field, an example mask that generates a car plate."
+  },
+  "maskLegendTitle": "How to write a mask",
+  "@maskLegendTitle": {
+    "description": "Heading of the block that explains the mask syntax."
+  },
+  "maskTokenDigit": "a digit, 0 to 9",
+  "@maskTokenDigit": {
+    "description": "Legend entry for the mask placeholder that generates one digit."
+  },
+  "maskTokenLowercase": "a lowercase letter",
+  "@maskTokenLowercase": {
+    "description": "Legend entry for the mask placeholder that generates one lowercase letter."
+  },
+  "maskTokenUppercase": "an uppercase letter",
+  "@maskTokenUppercase": {
+    "description": "Legend entry for the mask placeholder that generates one uppercase letter."
+  },
+  "maskTokenLetter": "a letter, either case",
+  "@maskTokenLetter": {
+    "description": "Legend entry for the mask placeholder that generates one letter of either case."
+  },
+  "maskTokenAlphanumeric": "a letter or a digit",
+  "@maskTokenAlphanumeric": {
+    "description": "Legend entry for the mask placeholder that generates one letter or digit."
+  },
+  "maskTokenHexLower": "a lowercase hex digit, 0 to f",
+  "@maskTokenHexLower": {
+    "description": "Legend entry for the mask placeholder that generates one lowercase hexadecimal digit."
+  },
+  "maskTokenHexUpper": "an uppercase hex digit, 0 to F",
+  "@maskTokenHexUpper": {
+    "description": "Legend entry for the mask placeholder that generates one uppercase hexadecimal digit."
+  },
+  "maskTokenSpecial": "a special character",
+  "@maskTokenSpecial": {
+    "description": "Legend entry for the mask placeholder that generates one special character."
+  },
+  "maskTokenRepeat": "repeats the item before it, five times here",
+  "@maskTokenRepeat": {
+    "description": "Legend entry for the mask repetition count, shown next to the syntax a{5}. Braces cannot appear in this text because they are ICU placeholder syntax."
+  },
+  "maskTokenEscape": "the next character exactly as typed",
+  "@maskTokenEscape": {
+    "description": "Legend entry for the mask escape character, a backslash."
+  },
+  "maskLiteralNote": "Anything else is copied as it is, so AA-### keeps the dash.",
+  "@maskLiteralNote": {
+    "description": "Legend note explaining that unrecognized mask characters are literals."
+  },
+  "maskExample": "Example: AA###AA generates a plate like QP417XZ",
+  "@maskExample": {
+    "description": "Worked example closing the mask legend."
+  },
+  "maskErrorNoPlaceholder": "Add at least one placeholder, like AA###AA",
+  "@maskErrorNoPlaceholder": {
+    "description": "Error shown under the mask field when the mask is empty or made of literals only."
+  },
+  "maskErrorQuantifier": "A repetition needs an item before it and a number inside the braces",
+  "@maskErrorQuantifier": {
+    "description": "Error shown under the mask field when a repetition count is malformed. Braces cannot appear in this text because they are ICU placeholder syntax."
+  },
+  "maskErrorTooLong": "The mask would generate more than {max} characters",
+  "@maskErrorTooLong": {
+    "description": "Error shown under the mask field when the mask expands past the maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "4096"
+      }
+    }
   },
 
   "rangeDigit": "[0–9]",
