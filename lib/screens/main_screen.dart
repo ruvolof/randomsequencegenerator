@@ -248,40 +248,6 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
             ],
-            // Hidden until the first successful generation, and hidden again
-            // whenever the pool comes out empty — as in the legacy screen.
-            if (_result.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Center(
-                child: SizedBox(
-                  // Same width as Create, so copy, save and share line up with
-                  // its left edge, centre and right edge by construction.
-                  width: Dimens.createButton,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconActionButton(
-                        icon: Icons.content_copy,
-                        label: l10n.copy,
-                        onPressed: () =>
-                            TextActions.copyToClipboard(context, _result),
-                      ),
-                      IconActionButton(
-                        icon: Icons.save,
-                        label: l10n.save,
-                        onPressed: _save,
-                      ),
-                      IconActionButton(
-                        icon: Icons.share,
-                        label: l10n.send,
-                        onPressed: () =>
-                            TextActions.shareText(context, _result),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
             const SizedBox(height: 16),
             ResultDisplay(text: _result, emptyHint: l10n.gotoSaved),
           ],
@@ -298,11 +264,47 @@ class _MainScreenState extends State<MainScreen> {
           child: Center(
             heightFactor: 1,
             child: SizedBox(
-              // Same width as the row of action buttons above it.
+              // Same width as the action buttons above it, so copy, save and
+              // share line up with Create's left edge, centre and right edge by
+              // construction.
               width: Dimens.createButton,
-              child: ElevatedButton(
-                onPressed: _canCreate ? _create : null,
-                child: Text(l10n.create),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Pinned here above Create rather than in the scrolling body:
+                  // the actions stay put while the result scrolls. Hidden until
+                  // the first successful generation, and hidden again whenever
+                  // the pool comes out empty — as in the legacy screen.
+                  if (_result.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconActionButton(
+                          icon: Icons.content_copy,
+                          label: l10n.copy,
+                          onPressed: () =>
+                              TextActions.copyToClipboard(context, _result),
+                        ),
+                        IconActionButton(
+                          icon: Icons.save,
+                          label: l10n.save,
+                          onPressed: _save,
+                        ),
+                        IconActionButton(
+                          icon: Icons.share,
+                          label: l10n.send,
+                          onPressed: () =>
+                              TextActions.shareText(context, _result),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  ElevatedButton(
+                    onPressed: _canCreate ? _create : null,
+                    child: Text(l10n.create),
+                  ),
+                ],
               ),
             ),
           ),
