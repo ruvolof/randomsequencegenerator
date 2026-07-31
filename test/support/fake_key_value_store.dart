@@ -11,11 +11,18 @@ class FakeKeyValueStore implements KeyValueStore {
   /// persisted.
   final List<String> writes = [];
 
+  /// When true, every write fails the way a full or unavailable disk does —
+  /// nothing is recorded in [values] or [writes].
+  bool failWrites = false;
+
   @override
   Future<String?> getString(String key) async => values[key];
 
   @override
   Future<void> setString(String key, String value) async {
+    if (failWrites) {
+      throw PlatformException(code: 'io-error', message: 'write failed');
+    }
     values[key] = value;
     writes.add(key);
   }

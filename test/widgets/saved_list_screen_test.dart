@@ -17,8 +17,8 @@ SavedEntry entry(String name, String sequence, int millis) => SavedEntry(
 );
 
 /// A store already holding first, second and third, in that order.
-Future<SavedStore> threeEntries() async {
-  final store = SavedStore(FakeKeyValueStore());
+Future<SavedStore> threeEntries([FakeKeyValueStore? backing]) async {
+  final store = SavedStore(backing ?? FakeKeyValueStore());
   await store.upsert(entry('first', '111', 100));
   await store.upsert(entry('second', '222', 200));
   await store.upsert(entry('third', '333', 300));
@@ -121,6 +121,45 @@ void main() {
       expect(store.entries, isEmpty);
       expect(find.text('No saved entries'), findsOneWidget);
       expect(find.text('All saved entries deleted'), findsOneWidget);
+    });
+
+    testWidgets('a delete that cannot be written says so', (tester) async {
+      final backing = FakeKeyValueStore();
+      final store = await threeEntries(backing);
+      await tester.pumpApp(const SavedListScreen(), store: store);
+      backing.failWrites = true;
+
+      await tester.longPress(find.text('second'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Deleted "second"'), findsNothing);
+      expect(
+        find.text(
+          'Storage is unavailable — this change will be lost when the app '
+          'restarts',
+        ),
+        findsOneWidget,
+      );
+      // The row is gone from the list anyway: the message is about the restart,
+      // not about the delete having been refused.
+      expect(store.entries.map((e) => e.name), ['first', 'third']);
+    });
+
+    testWidgets('a Delete all that cannot be written says so', (tester) async {
+      final backing = FakeKeyValueStore();
+      final store = await threeEntries(backing);
+      await tester.pumpApp(const SavedListScreen(), store: store);
+      backing.failWrites = true;
+
+      await tester.tap(find.text('Delete all'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes, delete them!'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('All saved entries deleted'), findsNothing);
+      expect(find.textContaining('Storage is unavailable'), findsOneWidget);
     });
 
     testWidgets('Cancel on the confirmation keeps every entry', (tester) async {

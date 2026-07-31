@@ -36,10 +36,14 @@ class SavedListScreen extends StatelessWidget {
     );
     if (!confirmed) return;
 
-    await store.deleteAll();
+    final stored = await store.deleteAll();
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l10n.allEntriesDeleted)));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(stored ? l10n.allEntriesDeleted : l10n.changeNotStored),
+        ),
+      );
   }
 
   @override
@@ -102,11 +106,15 @@ class _SavedRow extends StatelessWidget {
 
     switch (action) {
       case _RowAction.delete:
-        await store.deleteByName(entry.name);
+        final stored = await store.deleteByName(entry.name);
         messenger
           ..hideCurrentSnackBar()
           ..showSnackBar(
-            SnackBar(content: Text(l10n.entryDeleted(entry.name))),
+            SnackBar(
+              content: Text(
+                stored ? l10n.entryDeleted(entry.name) : l10n.changeNotStored,
+              ),
+            ),
           );
       case _RowAction.copy:
         await TextActions.copyToClipboard(context, entry.sequence);

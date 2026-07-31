@@ -165,6 +165,41 @@ void main() {
       },
     );
 
+    test(
+      'a failed write reports false and keeps the change on screen',
+      () async {
+        await store.upsert(entry('a'));
+        backing.failWrites = true;
+
+        expect(await store.upsert(entry('b', millis: 2000)), isFalse);
+
+        // The list the user is looking at holds the entry; only the disk does
+        // not. Deliberate — see _commit.
+        expect(store.entries.map((e) => e.name), ['a', 'b']);
+        expect(
+          jsonDecode(backing.values[SavedStore.storageKey]!),
+          hasLength(1),
+        );
+      },
+    );
+
+    test('a failed delete reports false, on both delete paths', () async {
+      await store.upsert(entry('a'));
+      backing.failWrites = true;
+
+      expect(await store.deleteByName('a'), isFalse);
+      expect(await store.deleteAll(), isFalse);
+      expect(store.entries, isEmpty);
+    });
+
+    test('a successful write reports true', () async {
+      expect(await store.upsert(entry('a')), isTrue);
+      expect(await store.deleteByName('a'), isTrue);
+      // Removing a name that is not there writes nothing, and is not a failure.
+      expect(await store.deleteByName('gone'), isTrue);
+      expect(await store.deleteAll(), isTrue);
+    });
+
     test('deleteAll persists an empty list', () async {
       await store.upsert(entry('a'));
       await store.deleteAll();

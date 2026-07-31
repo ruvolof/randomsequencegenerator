@@ -190,10 +190,6 @@
   "@saveHint": {
     "description": "Placeholder in the save dialog's name field."
   },
-  "gotoSaved": "Click menu button to go to saved sequences",
-  "@gotoSaved": {
-    "description": "Hint shown in place of the result before anything has been generated."
-  },
 
   "deleteAll": "Delete all",
   "@deleteAll": {
@@ -313,5 +309,9 @@
   "allEntriesDeleted": "All saved entries deleted",
   "@allEntriesDeleted": {
     "description": "Confirmation shown after removing every saved sequence."
+  },
+  "changeNotStored": "Storage is unavailable — this change will be lost when the app restarts",
+  "@changeNotStored": {
+    "description": "Shown in place of the confirmation when a save or a delete could not be written to disk. The change is still applied on screen, which is why the wording is about the restart rather than about the action failing. The dash is U+2014 EM DASH."
   }
 }

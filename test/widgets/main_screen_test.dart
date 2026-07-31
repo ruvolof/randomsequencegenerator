@@ -42,12 +42,6 @@ void main() {
       expect(find.text('[0–9]'), findsNothing);
       expect(find.text('abcd078[]'), findsNothing);
       expect(find.text('Hyphens'), findsNothing);
-
-      // The empty-state hint stands in for the result.
-      expect(
-        find.text('Click menu button to go to saved sequences'),
-        findsOneWidget,
-      );
     });
 
     testWidgets('the length field defaults to 32', (tester) async {
@@ -180,7 +174,7 @@ void main() {
 
       expect(find.text('Select at least one character set'), findsOneWidget);
       expect(find.byTooltip('Copy'), findsNothing);
-      expect(shownResult(tester), isNull);
+      expect(shownResult(tester), '');
     });
 
     testWidgets('an empty manual field is treated the same way', (
@@ -280,6 +274,21 @@ void main() {
           jsonDecode(backing.values[SavedStore.storageKey]!),
           hasLength(1),
         );
+      });
+
+      testWidgets('a save that cannot be written says so', (tester) async {
+        final backing = FakeKeyValueStore();
+        final store = await pumpWithStore(tester, backing);
+        backing.failWrites = true;
+
+        await saveAs(tester, 'mine');
+
+        expect(find.text('Saved as "mine"'), findsNothing);
+        expect(find.textContaining('Storage is unavailable'), findsOneWidget);
+        // Kept in memory, so the entry is there until the process dies — which
+        // is exactly what the message tells the user.
+        expect(store.entries.single.name, 'mine');
+        expect(backing.values[SavedStore.storageKey], isNull);
       });
 
       testWidgets('stamps the mode that generated the sequence, not the one '

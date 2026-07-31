@@ -166,7 +166,7 @@ class _MainScreenState extends State<MainScreen> {
       if (!mounted) return;
     }
 
-    await store.upsert(
+    final stored = await store.upsert(
       SavedEntry(
         name: name,
         sequence: result.text,
@@ -177,7 +177,11 @@ class _MainScreenState extends State<MainScreen> {
     );
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l10n.entrySaved(name))));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(stored ? l10n.entrySaved(name) : l10n.changeNotStored),
+        ),
+      );
   }
 
   @override
@@ -269,7 +273,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
             const SizedBox(height: 16),
-            ResultDisplay(text: result?.text ?? '', emptyHint: l10n.gotoSaved),
+            ResultDisplay(text: result?.text ?? ''),
           ],
         ),
       ),

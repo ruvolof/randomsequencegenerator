@@ -51,7 +51,9 @@ class SavedStore extends ChangeNotifier {
   /// Adds [entry], or replaces the existing entry with the same name in place.
   ///
   /// The caller is responsible for confirming an overwrite first.
-  Future<void> upsert(SavedEntry entry) {
+  ///
+  /// Returns whether the new list reached the disk; see [_commit].
+  Future<bool> upsert(SavedEntry entry) {
     final next = [..._entries];
     final index = next.indexWhere((existing) => existing.name == entry.name);
     if (index >= 0) {
@@ -62,23 +64,44 @@ class SavedStore extends ChangeNotifier {
     return _commit(next);
   }
 
-  Future<void> deleteByName(String name) {
+  /// Returns whether the new list reached the disk; see [_commit]. Removing a
+  /// name that is not there writes nothing and counts as success.
+  Future<bool> deleteByName(String name) {
     final next = _entries.where((entry) => entry.name != name).toList();
-    if (next.length == _entries.length) return Future.value();
+    if (next.length == _entries.length) return Future.value(true);
     return _commit(next);
   }
 
-  Future<void> deleteAll() => _commit(const []);
+  /// Returns whether the empty list reached the disk; see [_commit].
+  Future<bool> deleteAll() => _commit(const []);
 
-  Future<void> _commit(List<SavedEntry> next) {
+  /// Applies [next] in memory and persists it, reporting whether the write
+  /// succeeded.
+  ///
+  /// A failed write leaves the in-memory list holding the change: rolling back
+  /// would make rows appear and vanish under the user for a condition they
+  /// cannot act on, and the list on screen is the one they just edited. The
+  /// cost is that the change is real only until the process dies, which is
+  /// what the caller's message has to say — a `false` here is the app's only
+  /// chance to mention it, since nothing detects the divergence later.
+  Future<bool> _commit(List<SavedEntry> next) async {
     final sorted = [...next]..sort(_byCreatedAtThenName);
     _entries = sorted;
     // Notify optimistically, then persist: the UI never waits on the disk.
     notifyListeners();
-    return _keyValueStore.setString(
-      storageKey,
-      jsonEncode(sorted.map((entry) => entry.toJson()).toList()),
-    );
+    try {
+      await _keyValueStore.setString(
+        storageKey,
+        jsonEncode(sorted.map((entry) => entry.toJson()).toList()),
+      );
+      return true;
+    } catch (_) {
+      // Broad for the same reason as in [load]: the platform reports a failed
+      // write as more than one type. Swallowed here rather than rethrown
+      // because every caller is a fire-and-forget UI action, where an
+      // unhandled rejection is an app-level crash report and no feedback.
+      return false;
+    }
   }
 
   static int _byCreatedAtThenName(SavedEntry a, SavedEntry b) {
