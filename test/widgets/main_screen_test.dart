@@ -680,15 +680,29 @@ void main() {
 
         final field = tester.widget<TextField>(find.byType(TextField));
         final token = tester.widget<Text>(find.text('#'));
+        // The hint as rendered, not as declared: `MaskField` no longer names a
+        // style for it, because `TextField.style` already reaches it through
+        // the decorator's `baseStyle`. Reading the built widget is what proves
+        // that still holds.
+        final hint = tester.widget<Text>(
+          find.descendant(
+            of: find.byType(TextField),
+            matching: find.text('AA###AA'),
+          ),
+        );
 
-        for (final style in [
-          field.style,
-          field.decoration?.hintStyle,
-          token.style,
-        ]) {
+        for (final style in [field.style, hint.style, token.style]) {
           expect(style?.fontFamily, 'monospace');
           expect(style?.fontFamilyFallback, contains('Menlo'));
         }
+
+        // And with nothing displacing it, the hint is finally the same grey as
+        // every other hint in the app rather than M3's `onSurfaceVariant`.
+        final fieldContext = tester.element(find.byType(TextField));
+        expect(
+          hint.style?.color,
+          Theme.of(fieldContext).inputDecorationTheme.hintStyle?.color,
+        );
 
         // The legend merges into its base style rather than replacing it, so
         // the token column keeps the body text size.

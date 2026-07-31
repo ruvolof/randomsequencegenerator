@@ -13,11 +13,18 @@ SavedStore fakeStore([FakeKeyValueStore? backing]) =>
 
 /// Pumps [child] inside the same MaterialApp the real app builds: the dark
 /// theme, the localization delegates, and a [SavedStoreScope].
+///
+/// [theme] overrides the app theme, which is how a test proves a widget takes a
+/// colour from the theme rather than from a constant that happens to match it.
 extension PumpApp on WidgetTester {
-  Future<SavedStore> pumpApp(Widget child, {SavedStore? store}) async {
+  Future<SavedStore> pumpApp(
+    Widget child, {
+    SavedStore? store,
+    ThemeData? theme,
+  }) async {
     final resolved = store ?? fakeStore();
     addTearDown(resolved.dispose);
-    final theme = AppTheme.build();
+    theme ??= AppTheme.build();
     await pumpWidget(
       SavedStoreScope(
         store: resolved,

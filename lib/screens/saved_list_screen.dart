@@ -4,7 +4,6 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/saved_entry.dart';
 import '../services/text_actions.dart';
 import '../state/saved_store_scope.dart';
-import '../theme/app_theme.dart';
 import '../widgets/confirm_dialog.dart';
 import 'show_sequence_screen.dart';
 
@@ -119,7 +118,9 @@ class _SavedListScreenState extends State<SavedListScreen> {
             ? Center(
                 child: Text(
                   l10n.noSaved,
-                  style: const TextStyle(color: AppTheme.foreground),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               )
             : ListView.builder(

@@ -43,7 +43,11 @@ class MaskField extends StatelessWidget {
       style: MonoFont.style,
       decoration: InputDecoration(
         hintText: l10n.maskHint,
-        hintStyle: MonoFont.style,
+        // No `hintStyle`: the field's `style` reaches the hint on its own —
+        // `TextField` passes it to the decorator as `baseStyle`, which the hint
+        // merges under (`input_decorator.dart:2199-2210`) — so naming the font
+        // again here only displaces the app theme's hint colour with M3's
+        // default, leaving this the one hint in the app that is not `_outline`.
         errorText: switch (error) {
           null => null,
           MaskError.noPlaceholder => l10n.maskErrorNoPlaceholder,

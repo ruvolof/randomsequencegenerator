@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../services/coin_flip_controller.dart';
-import '../theme/app_theme.dart';
 import '../theme/breakpoints.dart';
 import '../theme/dimens.dart';
 
@@ -34,6 +33,7 @@ class _CoinScreenState extends State<CoinScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final height = Breakpoints.isTablet(context)
         ? Dimens.coinViewHeightTablet
         : Dimens.coinViewHeight;
@@ -53,9 +53,9 @@ class _CoinScreenState extends State<CoinScreen> {
                   child: face == null
                       ? Text(
                           l10n.clickOnFlip,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: Dimens.outputText,
-                            color: AppTheme.foreground,
+                            color: onSurface,
                           ),
                         )
                       // Renders giant but can never overflow: the legacy code
@@ -65,10 +65,10 @@ class _CoinScreenState extends State<CoinScreen> {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             '$face',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: Dimens.coinText,
                               height: 1,
-                              color: AppTheme.foreground,
+                              color: onSurface,
                             ),
                           ),
                         ),

@@ -123,7 +123,11 @@ class ShowSequenceScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   // Where Create sits on the main screen, and red because this
-                  // one cannot be undone.
+                  // one cannot be undone. The only pair left reading `AppTheme`
+                  // directly: `danger` is deliberately not a `colorScheme` role
+                  // (see its doc), so its label colour is the on-colour of that
+                  // fill rather than of the surface, and `onSurface` would be
+                  // the wrong thing to ask for.
                   ElevatedButton(
                     onPressed: () => _delete(context),
                     style: ElevatedButton.styleFrom(
@@ -153,11 +157,12 @@ class _Detail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Text(
       text,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(color: AppTheme.foreground),
+      style: theme.textTheme.titleMedium?.copyWith(
+        color: theme.colorScheme.onSurface,
+      ),
     );
   }
 }

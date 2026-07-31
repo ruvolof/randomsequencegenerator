@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
 import '../theme/dimens.dart';
 
 /// The centred, oversized display of a sequence.
@@ -16,9 +15,9 @@ class ResultDisplay extends StatelessWidget {
     return SelectableText(
       text,
       textAlign: TextAlign.center,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: Dimens.outputText,
-        color: AppTheme.foreground,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
