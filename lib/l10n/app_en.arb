@@ -10,6 +10,15 @@
     "description": "Title of the main screen."
   },
 
+  "sectionMode": "Mode",
+  "@sectionMode": {
+    "description": "Heading of the section that picks how the sequence is generated."
+  },
+  "sectionOptions": "Options",
+  "@sectionOptions": {
+    "description": "Heading of the section holding the settings of the selected generation mode."
+  },
+
   "rBinary": "Binary",
   "@rBinary": {
     "description": "Generation mode: the pool is 0 and 1."

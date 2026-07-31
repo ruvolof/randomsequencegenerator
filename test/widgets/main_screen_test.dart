@@ -12,12 +12,32 @@ import 'package:random_sequence_generator/services/char_pools.dart';
 import 'package:random_sequence_generator/services/saved_store.dart';
 import 'package:random_sequence_generator/services/sequence_generator.dart';
 import 'package:random_sequence_generator/widgets/mask_legend.dart';
+import 'package:random_sequence_generator/widgets/section_header.dart';
 
 import '../support/fake_key_value_store.dart';
 import '../support/pump_app.dart';
 
 Widget mainScreen() =>
     MainScreen(generator: SequenceGenerator(random: Random(7)));
+
+/// The chip label and the option labels that belong to each mode.
+///
+/// The chip labels are duplicated from the widget on purpose — a test that
+/// derived them from the same switch could not catch that switch going wrong.
+const modeFixtures = <GenerationMode, (String, List<String>)>{
+  GenerationMode.binary: ('Binary', []),
+  GenerationMode.hexadecimal: ('Hexadecimal', []),
+  GenerationMode.charClass: (
+    'Class',
+    ['[0–9]', '[a–z]', '[A–Z]', r'[$%&()=?@#<>_£[]*]'],
+  ),
+  GenerationMode.manual: ('Manual', ['abcd078[]']),
+  GenerationMode.uuid: ('UUID/GUID', ['Uppercase', 'Hyphens', 'Braces']),
+  GenerationMode.mask: ('Mask', ['How to write a mask']),
+};
+
+bool chipSelected(WidgetTester tester, String label) =>
+    tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, label)).selected;
 
 /// The generated sequence currently on screen, or null when none is shown.
 String? shownResult(WidgetTester tester) {
@@ -43,6 +63,95 @@ void main() {
       expect(find.text('[0–9]'), findsNothing);
       expect(find.text('abcd078[]'), findsNothing);
       expect(find.text('Hyphens'), findsNothing);
+    });
+
+    group('Mode and Options sections', () {
+      testWidgets('the body is split under two headings', (tester) async {
+        await tester.pumpApp(mainScreen());
+
+        expect(find.widgetWithText(SectionHeader, 'Mode'), findsOneWidget);
+        expect(find.widgetWithText(SectionHeader, 'Options'), findsOneWidget);
+      });
+
+      testWidgets('the chips carry the selection and never clear it', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+
+        expect(
+          find.byType(ChoiceChip),
+          findsNWidgets(GenerationMode.values.length),
+        );
+        expect(chipSelected(tester, 'Binary'), isTrue);
+        expect(chipSelected(tester, 'Class'), isFalse);
+
+        await tester.tap(find.text('Class'));
+        await tester.pumpAndSettle();
+        expect(chipSelected(tester, 'Class'), isTrue);
+        expect(chipSelected(tester, 'Binary'), isFalse);
+
+        // A ChoiceChip reports deselection too; acting on it would leave the
+        // screen with no mode at all.
+        await tester.tap(find.text('Class'));
+        await tester.pumpAndSettle();
+        expect(chipSelected(tester, 'Class'), isTrue);
+      });
+
+      testWidgets('each mode shows its own options and no others', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+
+        for (final MapEntry(key: mode, value: (chipLabel, own))
+            in modeFixtures.entries) {
+          await tester.tap(find.text(chipLabel));
+          await tester.pumpAndSettle();
+
+          for (final label in own) {
+            expect(
+              find.text(label),
+              findsOneWidget,
+              reason: '$mode should show $label',
+            );
+          }
+
+          for (final other in modeFixtures.entries) {
+            if (other.key == mode) continue;
+            for (final label in other.value.$2) {
+              if (own.contains(label)) continue;
+              expect(
+                find.text(label),
+                findsNothing,
+                reason: '$mode should not show ${other.key}\'s $label',
+              );
+            }
+          }
+
+          // The length row is one of the mode's options, so it comes and goes
+          // with the rest of the panel.
+          expect(
+            find.text('Length'),
+            mode.usesLength ? findsOneWidget : findsNothing,
+            reason: '$mode length row',
+          );
+        }
+      });
+
+      testWidgets('every chip fits a 320dp-wide screen', (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpApp(mainScreen());
+
+        final chips = find.byType(ChoiceChip);
+        expect(chips, findsNWidgets(GenerationMode.values.length));
+        for (var i = 0; i < GenerationMode.values.length; i++) {
+          final rect = tester.getRect(chips.at(i));
+          expect(rect.left, greaterThanOrEqualTo(0.0));
+          expect(rect.right, lessThanOrEqualTo(320.0));
+        }
+      });
     });
 
     testWidgets('the length field defaults to 32', (tester) async {

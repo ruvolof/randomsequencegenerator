@@ -9,7 +9,6 @@ import '../models/uuid_options.dart';
 import '../services/sequence_generator.dart';
 import '../services/text_actions.dart';
 import '../state/saved_store_scope.dart';
-import '../theme/breakpoints.dart';
 import '../theme/dimens.dart';
 import '../widgets/class_range_selector.dart';
 import '../widgets/confirm_dialog.dart';
@@ -17,8 +16,10 @@ import '../widgets/icon_action_button.dart';
 import '../widgets/length_field.dart';
 import '../widgets/mask_field.dart';
 import '../widgets/mask_legend.dart';
+import '../widgets/mode_selector.dart';
 import '../widgets/result_display.dart';
 import '../widgets/save_as_dialog.dart';
+import '../widgets/section_header.dart';
 import '../widgets/uuid_options_selector.dart';
 import 'coin_screen.dart';
 import 'saved_list_screen.dart';
@@ -212,67 +213,33 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _ModeRadioGroup(
+            SectionHeader(l10n.sectionMode),
+            const SizedBox(height: 8),
+            ModeSelector(
               mode: _mode,
               onChanged: (mode) => setState(() => _mode = mode),
             ),
-            if (_mode == GenerationMode.charClass) ...[
-              const SizedBox(height: 8),
-              ClassRangeSelector(
-                selection: _classes,
-                onChanged: (classes) => setState(() => _classes = classes),
-              ),
-            ],
-            if (_mode == GenerationMode.manual) ...[
-              const SizedBox(height: 8),
-              TextField(
-                controller: _manualController,
-                decoration: InputDecoration(hintText: l10n.manualHint),
-              ),
-            ],
-            if (_mode == GenerationMode.uuid) ...[
-              const SizedBox(height: 8),
-              UuidOptionsSelector(
-                selection: _uuidOptions,
-                onChanged: (options) => setState(() => _uuidOptions = options),
-              ),
-            ],
-            if (_mode == GenerationMode.mask) ...[
-              const SizedBox(height: 8),
-              MaskField(
-                controller: _maskController,
-                // Quiet until the user has typed, like the length field: an
-                // empty mask on arrival is not a mistake yet.
-                error: _maskTouched ? _maskPattern.error : null,
-                onChanged: (_) => setState(() => _maskTouched = true),
-              ),
-              const SizedBox(height: 8),
-              const MaskLegend(),
-            ],
-            if (_mode.usesLength) ...[
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      l10n.length,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: LengthField(
-                      controller: _lengthController,
-                      hasError: _lengthHasError,
-                      onChanged: (_) => setState(() => _lengthTouched = true),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            SectionHeader(l10n.sectionOptions),
+            const SizedBox(height: 8),
+            _ModeOptions(
+              mode: _mode,
+              classes: _classes,
+              onClassesChanged: (classes) => setState(() => _classes = classes),
+              manualController: _manualController,
+              uuidOptions: _uuidOptions,
+              onUuidOptionsChanged: (options) =>
+                  setState(() => _uuidOptions = options),
+              maskController: _maskController,
+              // Quiet until the user has typed, like the length field: an empty
+              // mask on arrival is not a mistake yet.
+              maskError: _maskTouched ? _maskPattern.error : null,
+              onMaskChanged: () => setState(() => _maskTouched = true),
+              lengthController: _lengthController,
+              lengthHasError: _lengthHasError,
+              onLengthChanged: () => setState(() => _lengthTouched = true),
+            ),
+            const SizedBox(height: 20),
             ResultDisplay(text: result?.text ?? ''),
           ],
         ),
@@ -338,60 +305,109 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-/// The vertical radio group, sized to the legacy row heights.
+/// Everything under the Options heading: the controls belonging to [mode].
 ///
-/// Deliberately not `RadioListTile`, which is full-width with heavy padding and
-/// nothing like the legacy `wrap_content` rows.
-class _ModeRadioGroup extends StatelessWidget {
-  const _ModeRadioGroup({required this.mode, required this.onChanged});
+/// One exhaustive switch rather than the `if (_mode == …)` blocks this replaces.
+/// The switch has no `default`, so a seventh [GenerationMode] will not compile
+/// until its panel is written here — which is the point of gathering them.
+///
+/// The length row is part of a mode's options too, not a row of its own: Binary
+/// and Hexadecimal have only it, UUID and Mask have none. No mode ends up with
+/// an empty panel, so the heading above never sits over nothing.
+class _ModeOptions extends StatelessWidget {
+  const _ModeOptions({
+    required this.mode,
+    required this.classes,
+    required this.onClassesChanged,
+    required this.manualController,
+    required this.uuidOptions,
+    required this.onUuidOptionsChanged,
+    required this.maskController,
+    required this.maskError,
+    required this.onMaskChanged,
+    required this.lengthController,
+    required this.lengthHasError,
+    required this.onLengthChanged,
+  });
 
   final GenerationMode mode;
-  final ValueChanged<GenerationMode> onChanged;
+
+  final ClassSelection classes;
+  final ValueChanged<ClassSelection> onClassesChanged;
+
+  final TextEditingController manualController;
+
+  final UuidOptions uuidOptions;
+  final ValueChanged<UuidOptions> onUuidOptionsChanged;
+
+  final TextEditingController maskController;
+  final MaskError? maskError;
+  final VoidCallback onMaskChanged;
+
+  final TextEditingController lengthController;
+  final bool lengthHasError;
+  final VoidCallback onLengthChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final labels = {
-      GenerationMode.binary: l10n.rBinary,
-      GenerationMode.hexadecimal: l10n.rHexadecimal,
-      GenerationMode.charClass: l10n.rClass,
-      GenerationMode.manual: l10n.rManual,
-      GenerationMode.uuid: l10n.rUuid,
-      GenerationMode.mask: l10n.rMask,
-    };
-    final rowHeight = Breakpoints.isTablet(context)
-        ? Dimens.radioRowTablet
-        : Dimens.radioRow;
 
-    return RadioGroup<GenerationMode>(
-      groupValue: mode,
-      onChanged: (value) {
-        if (value != null) onChanged(value);
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final entry in labels.entries)
-            SizedBox(
-              height: rowHeight,
-              child: InkWell(
-                onTap: () => onChanged(entry.key),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Radio<GenerationMode>(
-                      value: entry.key,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(entry.value),
-                    const SizedBox(width: 8),
-                  ],
+    final controls = switch (mode) {
+      GenerationMode.binary || GenerationMode.hexadecimal => const <Widget>[],
+      GenerationMode.charClass => [
+        ClassRangeSelector(selection: classes, onChanged: onClassesChanged),
+      ],
+      GenerationMode.manual => [
+        TextField(
+          controller: manualController,
+          decoration: InputDecoration(hintText: l10n.manualHint),
+        ),
+      ],
+      GenerationMode.uuid => [
+        UuidOptionsSelector(
+          selection: uuidOptions,
+          onChanged: onUuidOptionsChanged,
+        ),
+      ],
+      GenerationMode.mask => [
+        MaskField(
+          controller: maskController,
+          error: maskError,
+          onChanged: (_) => onMaskChanged(),
+        ),
+        const SizedBox(height: 8),
+        const MaskLegend(),
+      ],
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...controls,
+        if (mode.usesLength) ...[
+          if (controls.isNotEmpty) const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  l10n.length,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-            ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: LengthField(
+                  controller: lengthController,
+                  hasError: lengthHasError,
+                  onChanged: (_) => onLengthChanged(),
+                ),
+              ),
+            ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }

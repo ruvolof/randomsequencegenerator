@@ -24,12 +24,6 @@ abstract final class Dimens {
   /// Height of the coin area on a `sw600dp` device.
   static const double coinViewHeightTablet = 360;
 
-  /// Height of one row of the generation mode radio group on a phone.
-  static const double radioRow = 34;
-
-  /// Height of one row of the generation mode radio group on a `sw600dp` device.
-  static const double radioRowTablet = 50;
-
   /// Gap between the two action buttons on the show sequence screen. Replaces
   /// the legacy 200dp side margins, which pushed them off a narrow phone.
   static const double showSequenceButtonGap = 48;

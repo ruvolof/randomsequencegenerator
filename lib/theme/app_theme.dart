@@ -38,19 +38,6 @@ abstract final class AppTheme {
         outline: _outline,
       );
 
-  /// M3 defaults the unselected state of toggles to `onSurfaceVariant`, which is
-  /// too dim on `#333333`. Both radios and checkboxes get an explicit white.
-  static final WidgetStateProperty<Color> _toggleFill =
-      WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) {
-          return _outline;
-        }
-        if (states.contains(WidgetState.selected)) {
-          return holoAccent;
-        }
-        return foreground;
-      });
-
   static ThemeData build() {
     final scheme = colorScheme;
     final textTheme = Typography.whiteMountainView;
@@ -87,7 +74,30 @@ abstract final class AppTheme {
         contentTextStyle: textTheme.bodyMedium?.copyWith(color: foreground),
         behavior: SnackBarBehavior.floating,
       ),
-      radioTheme: RadioThemeData(fillColor: _toggleFill),
+      // The generation mode chips. M3 would colour them from the seeded tonal
+      // palette, which does not belong to the pinned #333333 ramp, so every
+      // role is set explicitly — as the checkboxes below already are.
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.transparent,
+        selectedColor: holoAccent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        pressElevation: 0,
+        shape: const StadiumBorder(),
+        // ChoiceChip takes its selected label from secondaryLabelStyle. Leaving
+        // it to inherit gives white on #33B5E5, which is about 2.3:1; the dark
+        // label below is 5.5:1.
+        labelStyle: textTheme.labelLarge?.copyWith(color: foreground),
+        secondaryLabelStyle: textTheme.labelLarge?.copyWith(color: background),
+        side: WidgetStateBorderSide.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? BorderSide.none
+              : const BorderSide(color: _outline),
+        ),
+        // The fill already carries the selection, and the checkmark costs width
+        // in a row of six chips.
+        showCheckmark: false,
+      ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           // An unchecked M3 checkbox draws only its outline in `fillColor`;
