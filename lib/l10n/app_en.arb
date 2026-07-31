@@ -203,9 +203,13 @@
   "@copiedToCb": {
     "description": "Confirmation shown after copying a sequence."
   },
-  "send": "Send",
+  "send": "Share",
   "@send": {
-    "description": "Action that opens the system share sheet."
+    "description": "Action that opens the system share sheet. The key is the legacy name of the Android intent; the label is what the system sheet is actually called."
+  },
+  "view": "View",
+  "@view": {
+    "description": "Tooltip of the eye button on a saved row, which opens the screen showing that sequence."
   },
   "save": "Save",
   "@save": {

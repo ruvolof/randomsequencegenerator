@@ -85,7 +85,7 @@ void main() {
 
       final sequence = tester.getRect(find.text('10110100'));
       final copy = tester.getRect(find.byTooltip('Copy'));
-      final share = tester.getRect(find.byTooltip('Send'));
+      final share = tester.getRect(find.byTooltip('Share'));
       final delete = tester.getRect(
         find.widgetWithText(ElevatedButton, 'Delete'),
       );
@@ -109,7 +109,7 @@ void main() {
       await tester.pumpApp(ShowSequenceScreen(entry: testEntry));
 
       final copy = tester.getRect(find.byTooltip('Copy'));
-      final share = tester.getRect(find.byTooltip('Send'));
+      final share = tester.getRect(find.byTooltip('Share'));
 
       expect(copy.left, greaterThanOrEqualTo(0));
       expect(copy.right, lessThanOrEqualTo(320));
@@ -170,7 +170,7 @@ void main() {
         final store = fakeStore();
         await store.upsert(testEntry);
         await tester.pumpApp(const SavedListScreen(), store: store);
-        await tester.tap(find.text('mine'));
+        await tester.tap(find.byTooltip('View'));
         await tester.pumpAndSettle();
         return store;
       }
@@ -211,7 +211,7 @@ void main() {
         final store = SavedStore(backing);
         await store.upsert(testEntry);
         await tester.pumpApp(const SavedListScreen(), store: store);
-        await tester.tap(find.text('mine'));
+        await tester.tap(find.byTooltip('View'));
         await tester.pumpAndSettle();
         backing.failWrites = true;
 

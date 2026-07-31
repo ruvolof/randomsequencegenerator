@@ -185,7 +185,7 @@ void main() {
 
       expect(find.byTooltip('Copy'), findsNothing);
       expect(find.byTooltip('Save'), findsNothing);
-      expect(find.byTooltip('Send'), findsNothing);
+      expect(find.byTooltip('Share'), findsNothing);
 
       await tester.tap(find.text('Create'));
       await tester.pumpAndSettle();
@@ -198,7 +198,7 @@ void main() {
 
       expect(find.byTooltip('Copy'), findsOneWidget);
       expect(find.byTooltip('Save'), findsOneWidget);
-      expect(find.byTooltip('Send'), findsOneWidget);
+      expect(find.byTooltip('Share'), findsOneWidget);
     });
 
     testWidgets(
@@ -268,7 +268,7 @@ void main() {
       expect(shownResult(tester), before);
       expect(find.byTooltip('Copy'), findsOneWidget);
       expect(find.byTooltip('Save'), findsOneWidget);
-      expect(find.byTooltip('Send'), findsOneWidget);
+      expect(find.byTooltip('Share'), findsOneWidget);
     });
 
     testWidgets('an empty pool reports it and keeps the buttons hidden', (
@@ -531,7 +531,7 @@ void main() {
         expect(shownResult(tester), matches(canonical));
         expect(find.byTooltip('Copy'), findsOneWidget);
         expect(find.byTooltip('Save'), findsOneWidget);
-        expect(find.byTooltip('Send'), findsOneWidget);
+        expect(find.byTooltip('Share'), findsOneWidget);
       });
 
       testWidgets('the checkboxes change the rendering', (tester) async {
@@ -714,7 +714,7 @@ void main() {
         expect(shownResult(tester), matches(plate));
         expect(find.byTooltip('Copy'), findsOneWidget);
         expect(find.byTooltip('Save'), findsOneWidget);
-        expect(find.byTooltip('Send'), findsOneWidget);
+        expect(find.byTooltip('Share'), findsOneWidget);
       });
 
       testWidgets('a mask with no placeholder shows the error and blocks '

@@ -74,6 +74,16 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         textStyle: textTheme.bodyLarge?.copyWith(color: foreground),
       ),
+      // The saved list's actions sheet, pinned for the same reason the dialog
+      // and the menu above are, and to the same surface: it is the menu the
+      // long press used to open, in a place a tap can reach.
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: _surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        // The M3 affordance saying the sheet can be swiped away — worth having
+        // when the only other way out is a tap on the scrim.
+        showDragHandle: true,
+      ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: _surfaceContainerHighest,
         contentTextStyle: textTheme.bodyMedium?.copyWith(color: foreground),

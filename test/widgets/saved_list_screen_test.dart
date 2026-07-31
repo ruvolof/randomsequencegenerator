@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
 import 'package:random_sequence_generator/models/saved_entry.dart';
@@ -25,6 +26,19 @@ Future<SavedStore> threeEntries([FakeKeyValueStore? backing]) async {
   return store;
 }
 
+/// Taps the row named [name] and settles its actions sheet.
+Future<void> openSheet(WidgetTester tester, String name) async {
+  await tester.tap(find.text(name));
+  await tester.pumpAndSettle();
+}
+
+/// The sheet's row for [action], distinct from the list row of the same name
+/// underneath it.
+Finder sheetAction(String action) => find.descendant(
+  of: find.byType(BottomSheet),
+  matching: find.widgetWithText(ListTile, action),
+);
+
 void main() {
   group('SavedListScreen', () {
     testWidgets('an empty list shows the empty state', (tester) async {
@@ -49,13 +63,13 @@ void main() {
       );
     });
 
-    testWidgets('tapping a row opens it with that entry', (tester) async {
+    testWidgets("the eye button opens that row's entry", (tester) async {
       await tester.pumpApp(
         const SavedListScreen(),
         store: await threeEntries(),
       );
 
-      await tester.tap(find.text('second'));
+      await tester.tap(find.byTooltip('View').at(1));
       await tester.pumpAndSettle();
 
       final screen = tester.widget<ShowSequenceScreen>(
@@ -65,17 +79,123 @@ void main() {
       expect(screen.entry.sequence, '222');
     });
 
+    testWidgets('tapping a row opens the actions, not the entry', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        const SavedListScreen(),
+        store: await threeEntries(),
+      );
+
+      await openSheet(tester, 'second');
+
+      expect(find.byType(ShowSequenceScreen), findsNothing);
+      expect(find.byType(BottomSheet), findsOneWidget);
+      // The sheet names the entry it acts on, over the row it covers.
+      expect(find.text('second'), findsNWidgets(2));
+    });
+
+    testWidgets('the sheet offers Copy, Share and Delete, in that order', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        const SavedListScreen(),
+        store: await threeEntries(),
+      );
+
+      await openSheet(tester, 'first');
+
+      expect(sheetAction('Copy'), findsOneWidget);
+      expect(sheetAction('Share'), findsOneWidget);
+      expect(sheetAction('Delete'), findsOneWidget);
+      // Destructive last, furthest from the header the eye has just been read.
+      expect(
+        tester.getRect(sheetAction('Copy')).top,
+        lessThan(tester.getRect(sheetAction('Share')).top),
+      );
+      expect(
+        tester.getRect(sheetAction('Share')).top,
+        lessThan(tester.getRect(sheetAction('Delete')).top),
+      );
+    });
+
+    testWidgets('a long press no longer opens a popup menu', (tester) async {
+      await tester.pumpApp(
+        const SavedListScreen(),
+        store: await threeEntries(),
+      );
+
+      await tester.longPress(find.text('first'));
+      await tester.pumpAndSettle();
+
+      // The row has no long-press handler left, so the tap recognizer takes the
+      // gesture on release and a long press lands on the same sheet a tap does.
+      // Nothing is lost by that; what matters is that the menu is gone.
+      expect(find.byType(PopupMenuItem<Object?>), findsNothing);
+      expect(find.byType(BottomSheet), findsOneWidget);
+    });
+
+    testWidgets('Copy puts the stored sequence on the clipboard', (
+      tester,
+    ) async {
+      final copied = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied.add((call.arguments as Map)['text'] as String);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+
+      await tester.pumpApp(
+        const SavedListScreen(),
+        store: await threeEntries(),
+      );
+
+      await openSheet(tester, 'second');
+      await tester.tap(sheetAction('Copy'));
+      await tester.pumpAndSettle();
+
+      expect(copied, ['222']);
+      expect(find.text('Copied to clipboard'), findsOneWidget);
+    });
+
+    testWidgets('Cancel on the delete confirmation keeps the entry', (
+      tester,
+    ) async {
+      final store = await threeEntries();
+      await tester.pumpApp(const SavedListScreen(), store: store);
+
+      await openSheet(tester, 'second');
+      await tester.tap(sheetAction('Delete'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete "second"?'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(store.entries.map((e) => e.name), ['first', 'second', 'third']);
+    });
+
     testWidgets(
       'bug 4 — deleting the middle row leaves the other two correctly labelled',
       (tester) async {
         final store = await threeEntries();
         await tester.pumpApp(const SavedListScreen(), store: store);
 
-        await tester.longPress(find.text('second'));
+        await openSheet(tester, 'second');
+        await tester.tap(sheetAction('Delete'));
         await tester.pumpAndSettle();
-        expect(find.text('Delete'), findsOneWidget);
 
-        await tester.tap(find.text('Delete'));
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
         await tester.pumpAndSettle();
 
         // The legacy code hid a recycled row: the wrong entry disappeared and
@@ -90,22 +210,6 @@ void main() {
         expect(find.text('Deleted "second"'), findsOneWidget);
       },
     );
-
-    testWidgets('the long-press menu offers Delete, Copy and Send', (
-      tester,
-    ) async {
-      await tester.pumpApp(
-        const SavedListScreen(),
-        store: await threeEntries(),
-      );
-
-      await tester.longPress(find.text('first'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Delete'), findsOneWidget);
-      expect(find.text('Copy'), findsOneWidget);
-      expect(find.text('Send'), findsOneWidget);
-    });
 
     testWidgets('Delete all confirms, then empties the list', (tester) async {
       final store = await threeEntries();
@@ -129,9 +233,10 @@ void main() {
       await tester.pumpApp(const SavedListScreen(), store: store);
       backing.failWrites = true;
 
-      await tester.longPress(find.text('second'));
+      await openSheet(tester, 'second');
+      await tester.tap(sheetAction('Delete'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Delete'));
+      await tester.tap(find.widgetWithText(TextButton, 'Delete'));
       await tester.pumpAndSettle();
 
       expect(find.text('Deleted "second"'), findsNothing);
