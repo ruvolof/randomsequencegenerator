@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../l10n/mode_label.dart';
 import '../models/generation_mode.dart';
 
 /// The generation mode picker: one chip per mode, wrapping when they no longer
@@ -27,7 +28,7 @@ class ModeSelector extends StatelessWidget {
       children: [
         for (final value in GenerationMode.values)
           ChoiceChip(
-            label: Text(_label(l10n, value)),
+            label: Text(value.label(l10n)),
             selected: value == mode,
             // Only ever selects: tapping the current mode must not clear it,
             // the way tapping the checked radio never did.
@@ -39,17 +40,3 @@ class ModeSelector extends StatelessWidget {
     );
   }
 }
-
-/// The on-screen name of [mode].
-///
-/// Private to this widget for now. The saved list will want the same lookup
-/// once it shows the mode of each entry — that is the moment to lift it out,
-/// not before there is a second caller.
-String _label(AppLocalizations l10n, GenerationMode mode) => switch (mode) {
-  GenerationMode.binary => l10n.rBinary,
-  GenerationMode.hexadecimal => l10n.rHexadecimal,
-  GenerationMode.charClass => l10n.rClass,
-  GenerationMode.manual => l10n.rManual,
-  GenerationMode.uuid => l10n.rUuid,
-  GenerationMode.mask => l10n.rMask,
-};

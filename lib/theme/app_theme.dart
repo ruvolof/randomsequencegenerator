@@ -14,6 +14,11 @@ abstract final class AppTheme {
   /// The Holo accent the original inherited from `Theme.Holo`.
   static const Color holoAccent = Color(0xFF33B5E5);
 
+  /// Fill of a destructive button. Pinned like the rest of the palette rather
+  /// than taken from `colorScheme.error`, which the dark seed resolves to a
+  /// pale pink that does not read as a warning next to the accent.
+  static const Color danger = Color(0xFFC62828);
+
   static const Color _surfaceContainerLowest = Color(0xFF262626);
   static const Color _surfaceContainerLow = Color(0xFF2B2B2B);
   static const Color _surfaceContainer = Color(0xFF333333);

@@ -12,7 +12,35 @@
 
   "sectionMode": "Mode",
   "@sectionMode": {
-    "description": "Heading of the section that picks how the sequence is generated."
+    "description": "Heading of the section that picks how the sequence is generated on the main screen, and of the mode of a saved sequence on the screen showing one."
+  },
+  "sectionName": "Name",
+  "@sectionName": {
+    "description": "Heading of the name a saved sequence was stored under, on the screen showing one."
+  },
+  "sectionSaved": "Saved",
+  "@sectionSaved": {
+    "description": "Heading of when a saved sequence was stored, on the screen showing one."
+  },
+  "savedAt": "{date} at {time}",
+  "@savedAt": {
+    "description": "When a saved sequence was stored: a date and a time of day. The time uses whatever clock the locale prefers, 12- or 24-hour.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "example": "Jul 31, 2026"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "jm",
+        "example": "14:05"
+      }
+    }
+  },
+  "sectionValue": "Value",
+  "@sectionValue": {
+    "description": "Heading of the sequence itself, on the screen showing one saved sequence."
   },
   "sectionOptions": "Options",
   "@sectionOptions": {
@@ -226,7 +254,17 @@
   },
   "delete": "Delete",
   "@delete": {
-    "description": "Context menu action that removes one saved sequence."
+    "description": "Context menu action, and button on the single sequence screen, that removes one saved sequence."
+  },
+  "deleteEntryMessage": "Delete \"{name}\"?",
+  "@deleteEntryMessage": {
+    "description": "Message of the dialog confirming the removal of one saved sequence.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "my key"
+      }
+    }
   },
 
   "titleActivityShowSingle": "Show Sequences",

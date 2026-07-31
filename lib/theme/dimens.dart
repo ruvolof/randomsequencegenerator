@@ -23,8 +23,4 @@ abstract final class Dimens {
 
   /// Height of the coin area on a `sw600dp` device.
   static const double coinViewHeightTablet = 360;
-
-  /// Gap between the two action buttons on the show sequence screen. Replaces
-  /// the legacy 200dp side margins, which pushed them off a narrow phone.
-  static const double showSequenceButtonGap = 48;
 }
