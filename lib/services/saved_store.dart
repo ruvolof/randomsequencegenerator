@@ -66,14 +66,25 @@ class SavedStore extends ChangeNotifier {
 
   /// Returns whether the new list reached the disk; see [_commit]. Removing a
   /// name that is not there writes nothing and counts as success.
-  Future<bool> deleteByName(String name) {
-    final next = _entries.where((entry) => entry.name != name).toList();
+  Future<bool> deleteByName(String name) => deleteByNames({name});
+
+  /// Removes every entry named in [names] in a single write.
+  ///
+  /// The list's multi-selection deletes this way rather than looping over
+  /// [deleteByName]: one write and one notification, so the rows vanish
+  /// together and a partial failure cannot leave half the selection on disk.
+  /// It is also how the whole list is emptied — Select all, then Delete — now
+  /// that no screen offers a delete-everything action of its own.
+  ///
+  /// Returns whether the new list reached the disk; see [_commit]. Names that
+  /// are not there are ignored, and a call that removes nothing writes nothing.
+  Future<bool> deleteByNames(Set<String> names) {
+    final next = _entries
+        .where((entry) => !names.contains(entry.name))
+        .toList();
     if (next.length == _entries.length) return Future.value(true);
     return _commit(next);
   }
-
-  /// Returns whether the empty list reached the disk; see [_commit].
-  Future<bool> deleteAll() => _commit(const []);
 
   /// Applies [next] in memory and persists it, reporting whether the write
   /// succeeded.

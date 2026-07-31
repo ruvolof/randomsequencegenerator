@@ -13,35 +13,65 @@ import 'show_sequence_screen.dart';
 /// The rows come straight from the store's model. Deleting mutates the model
 /// and notifies; the legacy version hid a recycled `ListView` row instead, so
 /// the entry came back on scroll and an unrelated row vanished (bug 4).
-class SavedListScreen extends StatelessWidget {
+///
+/// Stateful for the selection alone: which rows are ticked is this screen's
+/// business and nothing else's, so it stays here rather than in the store.
+class SavedListScreen extends StatefulWidget {
   const SavedListScreen({super.key});
 
-  Future<void> _deleteAll(BuildContext context) async {
+  @override
+  State<SavedListScreen> createState() => _SavedListScreenState();
+}
+
+class _SavedListScreenState extends State<SavedListScreen> {
+  /// The selected entries, by name — the identity the store deletes by, and
+  /// unique across the list, so an index would only be a weaker version of it.
+  final Set<String> _selected = <String>{};
+
+  /// One selected row is what puts the screen in selection mode; there is no
+  /// separate flag to fall out of step with the set.
+  bool get _selecting => _selected.isNotEmpty;
+
+  void _toggle(String name) => setState(() {
+    if (!_selected.remove(name)) _selected.add(name);
+  });
+
+  void _selectAll(List<SavedEntry> entries) =>
+      setState(() => _selected.addAll(entries.map((entry) => entry.name)));
+
+  void _clearSelection() => setState(_selected.clear);
+
+  /// Deletes the selection, confirming with its size first.
+  ///
+  /// The only way to empty the whole list is now Select all followed by this:
+  /// the screen no longer carries a `Delete all` that destroys entries the user
+  /// never pointed at, and a full wipe costs the same two deliberate taps as
+  /// any other multi-row delete.
+  Future<void> _deleteSelected() async {
     final l10n = AppLocalizations.of(context);
     final store = SavedStoreScope.read(context);
     final messenger = ScaffoldMessenger.of(context);
-
-    if (store.isEmpty) {
-      // No dialog on an empty list, matching the legacy toast.
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.nothingToDelete)));
-      return;
-    }
+    // The button exists only while something is selected, so the count is
+    // never zero and there is no empty-list case to report.
+    final names = Set.of(_selected);
 
     final confirmed = await showConfirmDialog(
       context: context,
-      message: l10n.areYouSure,
-      confirmLabel: l10n.yesDeleteThem,
+      message: l10n.deleteEntriesMessage(names.length),
+      confirmLabel: l10n.delete,
     );
     if (!confirmed) return;
 
-    final stored = await store.deleteAll();
+    final stored = await store.deleteByNames(names);
+    // Whatever was selected is gone, so the mode goes with it.
+    _clearSelection();
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(stored ? l10n.allEntriesDeleted : l10n.changeNotStored),
+          content: Text(
+            stored ? l10n.entriesDeleted(names.length) : l10n.changeNotStored,
+          ),
         ),
       );
   }
@@ -52,27 +82,59 @@ class SavedListScreen extends StatelessWidget {
     final store = SavedStoreScope.of(context);
     final entries = store.entries;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.titleActivityShowSaved),
-        actions: [
-          TextButton(
-            onPressed: () => _deleteAll(context),
-            child: Text(l10n.deleteAll),
-          ),
-        ],
-      ),
-      body: entries.isEmpty
-          ? Center(
-              child: Text(
-                l10n.noSaved,
-                style: const TextStyle(color: AppTheme.foreground),
+    // Three ways out of selection mode, and this is the one for the system back
+    // gesture: swallow the pop and drop the selection instead of leaving the
+    // screen, which is what every list with a contextual bar does.
+    return PopScope(
+      canPop: !_selecting,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _clearSelection();
+      },
+      child: Scaffold(
+        appBar: _selecting
+            ? AppBar(
+                // Replaces the back arrow, so the gesture and the button agree
+                // on what leaving means while rows are ticked.
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.cancel,
+                  onPressed: _clearSelection,
+                ),
+                title: Text(l10n.selectedCount(_selected.length)),
+                actions: [
+                  TextButton(
+                    onPressed: () => _selectAll(entries),
+                    child: Text(l10n.selectAll),
+                  ),
+                  TextButton(
+                    onPressed: _deleteSelected,
+                    child: Text(l10n.delete),
+                  ),
+                ],
+              )
+            // No actions of its own: emptying the list goes through the
+            // selection like every other delete.
+            : AppBar(title: Text(l10n.titleActivityShowSaved)),
+        body: entries.isEmpty
+            ? Center(
+                child: Text(
+                  l10n.noSaved,
+                  style: const TextStyle(color: AppTheme.foreground),
+                ),
+              )
+            : ListView.builder(
+                itemCount: entries.length,
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
+                  return _SavedRow(
+                    entry: entry,
+                    selecting: _selecting,
+                    selected: _selected.contains(entry.name),
+                    onToggle: () => _toggle(entry.name),
+                  );
+                },
               ),
-            )
-          : ListView.builder(
-              itemCount: entries.length,
-              itemBuilder: (context, index) => _SavedRow(entry: entries[index]),
-            ),
+      ),
     );
   }
 }
@@ -83,10 +145,23 @@ class SavedListScreen extends StatelessWidget {
 /// used to be the other way round, with the actions hidden behind a long press
 /// — an interaction nothing on screen advertised, and one that has no hover or
 /// right-click equivalent to discover it by.
+///
+/// The long press is back, on the one job it is good at: starting a selection.
+/// Once [selecting], a plain tap ticks a row instead of opening its actions —
+/// the sheet acts on one entry, and reaching it mid-selection would mean
+/// choosing between two entries the screen has already been told about.
 class _SavedRow extends StatelessWidget {
-  const _SavedRow({required this.entry});
+  const _SavedRow({
+    required this.entry,
+    required this.selecting,
+    required this.selected,
+    required this.onToggle,
+  });
 
   final SavedEntry entry;
+  final bool selecting;
+  final bool selected;
+  final VoidCallback onToggle;
 
   Future<void> _showActions(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
@@ -159,7 +234,14 @@ class _SavedRow extends StatelessWidget {
 
     return ListTile(
       title: Text(entry.name),
-      onTap: () => _showActions(context),
+      onTap: selecting ? onToggle : () => _showActions(context),
+      onLongPress: onToggle,
+      selected: selected,
+      // Only while selecting: a checkbox on a row that cannot be ticked would
+      // advertise a mode the screen is not in.
+      leading: selecting
+          ? Checkbox(value: selected, onChanged: (_) => onToggle())
+          : null,
       trailing: IconButton(
         icon: const Icon(Icons.visibility),
         tooltip: l10n.view,

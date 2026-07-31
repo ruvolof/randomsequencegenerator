@@ -165,6 +165,33 @@ void main() {
       },
     );
 
+    test('deleteByNames removes every named entry in one write', () async {
+      await store.upsert(entry('first', sequence: '1', millis: 100));
+      await store.upsert(entry('second', sequence: '2', millis: 200));
+      await store.upsert(entry('third', sequence: '3', millis: 300));
+      backing.writes.clear();
+
+      // 'nope' is not there: a selection cannot contain it, but ignoring it is
+      // what makes this the same operation as deleteByName, which delegates.
+      expect(await store.deleteByNames({'first', 'third', 'nope'}), isTrue);
+
+      expect(store.entries.map((e) => e.name), ['second']);
+      // One write, not one per name — so the rows go together and a failure
+      // cannot leave half the selection on disk.
+      expect(backing.writes, hasLength(1));
+    });
+
+    test('deleteByNames with nothing to remove does not write', () async {
+      await store.upsert(entry('a'));
+      backing.writes.clear();
+
+      expect(await store.deleteByNames({'nope'}), isTrue);
+      expect(await store.deleteByNames(const {}), isTrue);
+
+      expect(store.entries.map((e) => e.name), ['a']);
+      expect(backing.writes, isEmpty);
+    });
+
     test(
       'a failed write reports false and keeps the change on screen',
       () async {
@@ -188,7 +215,10 @@ void main() {
       backing.failWrites = true;
 
       expect(await store.deleteByName('a'), isFalse);
-      expect(await store.deleteAll(), isFalse);
+      expect(store.entries, isEmpty);
+
+      await store.upsert(entry('b'));
+      expect(await store.deleteByNames({'b'}), isFalse);
       expect(store.entries, isEmpty);
     });
 
@@ -197,12 +227,15 @@ void main() {
       expect(await store.deleteByName('a'), isTrue);
       // Removing a name that is not there writes nothing, and is not a failure.
       expect(await store.deleteByName('gone'), isTrue);
-      expect(await store.deleteAll(), isTrue);
+      expect(await store.deleteByNames({'gone'}), isTrue);
     });
 
-    test('deleteAll persists an empty list', () async {
+    test('removing every name persists an empty list', () async {
+      // What Select all followed by Delete does, now that the store has no
+      // delete-everything method of its own.
       await store.upsert(entry('a'));
-      await store.deleteAll();
+      await store.upsert(entry('b', millis: 2000));
+      await store.deleteByNames({'a', 'b'});
 
       expect(store.entries, isEmpty);
       expect(backing.values[SavedStore.storageKey], '[]');
@@ -249,8 +282,15 @@ void main() {
       await store.deleteByName('a');
       expect(notifications, 4);
 
-      await store.deleteAll();
+      await store.upsert(entry('b'));
       expect(notifications, 5);
+      await store.upsert(entry('c', millis: 2000));
+      expect(notifications, 6);
+
+      // One notification for the whole set, not one per name — otherwise the
+      // list would rebuild once per row it is dropping.
+      await store.deleteByNames({'b', 'c'});
+      expect(notifications, 7);
     });
 
     test('entries is an unmodifiable view', () async {

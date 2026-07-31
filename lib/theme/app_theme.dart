@@ -141,9 +141,14 @@ abstract final class AppTheme {
           borderSide: BorderSide(color: holoAccent, width: 2),
         ),
       ),
-      listTileTheme: const ListTileThemeData(
+      listTileTheme: ListTileThemeData(
         textColor: foreground,
         iconColor: foreground,
+        // A selected row in the saved list. The tint carries the selection, so
+        // the label stays white: M3's default `selectedColor` is `primary`,
+        // which would paint it the same accent as the wash behind it.
+        selectedColor: foreground,
+        selectedTileColor: holoAccent.withValues(alpha: 0.16),
       ),
       iconTheme: const IconThemeData(color: foreground),
       dividerTheme: const DividerThemeData(color: _outline),

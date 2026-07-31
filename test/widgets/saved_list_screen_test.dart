@@ -119,22 +119,6 @@ void main() {
       );
     });
 
-    testWidgets('a long press no longer opens a popup menu', (tester) async {
-      await tester.pumpApp(
-        const SavedListScreen(),
-        store: await threeEntries(),
-      );
-
-      await tester.longPress(find.text('first'));
-      await tester.pumpAndSettle();
-
-      // The row has no long-press handler left, so the tap recognizer takes the
-      // gesture on release and a long press lands on the same sheet a tap does.
-      // Nothing is lost by that; what matters is that the menu is gone.
-      expect(find.byType(PopupMenuItem<Object?>), findsNothing);
-      expect(find.byType(BottomSheet), findsOneWidget);
-    });
-
     testWidgets('Copy puts the stored sequence on the clipboard', (
       tester,
     ) async {
@@ -211,20 +195,25 @@ void main() {
       },
     );
 
-    testWidgets('Delete all confirms, then empties the list', (tester) async {
-      final store = await threeEntries();
-      await tester.pumpApp(const SavedListScreen(), store: store);
+    testWidgets('the app bar carries no delete action of its own', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        const SavedListScreen(),
+        store: await threeEntries(),
+      );
 
-      await tester.tap(find.text('Delete all'));
-      await tester.pumpAndSettle();
-      expect(find.text('Are you sure?'), findsOneWidget);
-
-      await tester.tap(find.text('Yes, delete them!'));
-      await tester.pumpAndSettle();
-
-      expect(store.entries, isEmpty);
-      expect(find.text('No saved entries'), findsOneWidget);
-      expect(find.text('All saved entries deleted'), findsOneWidget);
+      // "Delete all" is gone for good: emptying the list goes through the
+      // selection, so nothing on this screen destroys entries the user has not
+      // pointed at.
+      expect(find.text('Delete all'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byType(TextButton),
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets('a delete that cannot be written says so', (tester) async {
@@ -252,44 +241,272 @@ void main() {
       expect(store.entries.map((e) => e.name), ['first', 'third']);
     });
 
-    testWidgets('a Delete all that cannot be written says so', (tester) async {
-      final backing = FakeKeyValueStore();
-      final store = await threeEntries(backing);
-      await tester.pumpApp(const SavedListScreen(), store: store);
-      backing.failWrites = true;
+    group('selection', () {
+      /// Long-presses [name], which is what puts the screen in selection mode.
+      Future<void> select(WidgetTester tester, String name) async {
+        await tester.longPress(find.text(name));
+        await tester.pumpAndSettle();
+      }
 
-      await tester.tap(find.text('Delete all'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Yes, delete them!'));
-      await tester.pumpAndSettle();
+      /// The names of the rows currently ticked.
+      Iterable<String> selectedNames(WidgetTester tester) => tester
+          .widgetList<ListTile>(find.byType(ListTile))
+          .where((tile) => tile.selected)
+          .map((tile) => (tile.title! as Text).data!);
 
-      expect(find.text('All saved entries deleted'), findsNothing);
-      expect(find.textContaining('Storage is unavailable'), findsOneWidget);
-    });
+      testWidgets('a long press selects the row and swaps the app bar', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
 
-    testWidgets('Cancel on the confirmation keeps every entry', (tester) async {
-      final store = await threeEntries();
-      await tester.pumpApp(const SavedListScreen(), store: store);
+        // Nothing about selection is on screen until a row is held.
+        expect(find.byType(Checkbox), findsNothing);
+        expect(find.text('Select all'), findsNothing);
 
-      await tester.tap(find.text('Delete all'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
-      await tester.pumpAndSettle();
+        await select(tester, 'second');
 
-      expect(store.entries, hasLength(3));
-    });
+        // The gesture is back, but not the popup menu it used to open.
+        expect(find.byType(PopupMenuItem<Object?>), findsNothing);
+        expect(find.byType(BottomSheet), findsNothing);
+        expect(selectedNames(tester), ['second']);
+        expect(find.text('1 selected'), findsOneWidget);
+        expect(find.text('Select all'), findsOneWidget);
+        expect(find.widgetWithText(TextButton, 'Delete'), findsOneWidget);
+        // The contextual bar replaces the normal one entirely.
+        expect(find.text('Saved Sequences'), findsNothing);
+        // A checkbox on every row, ticked on the selected one: the affordance
+        // saying the other two can join the selection.
+        expect(find.byType(Checkbox), findsNWidgets(3));
+        expect(
+          tester
+              .widgetList<Checkbox>(find.byType(Checkbox))
+              .map((box) => box.value),
+          [false, true, false],
+        );
+      });
 
-    testWidgets('Delete all on an empty list reports it and shows no dialog', (
-      tester,
-    ) async {
-      await tester.pumpApp(const SavedListScreen());
+      testWidgets('while selecting, a tap ticks a row instead of opening it', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
 
-      await tester.tap(find.text('Delete all'));
-      await tester.pumpAndSettle();
+        await select(tester, 'second');
+        await tester.tap(find.text('third'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('There are no saved entries.'), findsOneWidget);
-      expect(find.text('Are you sure?'), findsNothing);
-      expect(find.byType(AlertDialog), findsNothing);
+        expect(selectedNames(tester), ['second', 'third']);
+        expect(find.text('2 selected'), findsOneWidget);
+        // The sheet belongs to one entry; it stays out of the way here.
+        expect(find.byType(BottomSheet), findsNothing);
+      });
+
+      testWidgets('unticking the last row leaves selection mode', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        await tester.tap(find.text('second'));
+        await tester.pumpAndSettle();
+
+        expect(selectedNames(tester), isEmpty);
+        expect(find.byType(Checkbox), findsNothing);
+        expect(find.text('Saved Sequences'), findsOneWidget);
+        expect(find.text('Select all'), findsNothing);
+      });
+
+      testWidgets('the ✕ drops the selection without leaving the screen', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pumpAndSettle();
+
+        expect(selectedNames(tester), isEmpty);
+        expect(find.text('Saved Sequences'), findsOneWidget);
+        expect(find.byType(SavedListScreen), findsOneWidget);
+      });
+
+      testWidgets('system back drops the selection before the screen', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        // The PopScope swallows this one...
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+
+        expect(selectedNames(tester), isEmpty);
+        expect(find.text('Saved Sequences'), findsOneWidget);
+        expect(find.byType(SavedListScreen), findsOneWidget);
+      });
+
+      testWidgets('Select all ticks every row', (tester) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        await tester.tap(find.text('Select all'));
+        await tester.pumpAndSettle();
+
+        expect(selectedNames(tester), ['first', 'second', 'third']);
+        expect(find.text('3 selected'), findsOneWidget);
+      });
+
+      testWidgets('Select all then Delete empties the list', (tester) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        // The replacement for the deleted "Delete all": same outcome, three
+        // deliberate steps instead of one, and it says how much is going.
+        await select(tester, 'second');
+        await tester.tap(find.text('Select all'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete 3 entries?'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(TextButton, 'Delete').last);
+        await tester.pumpAndSettle();
+
+        expect(store.entries, isEmpty);
+        expect(find.text('No saved entries'), findsOneWidget);
+        expect(find.text('Deleted 3 entries'), findsOneWidget);
+      });
+
+      testWidgets('the eye still opens an entry mid-selection', (tester) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        await tester.tap(find.byTooltip('View').first);
+        await tester.pumpAndSettle();
+
+        final screen = tester.widget<ShowSequenceScreen>(
+          find.byType(ShowSequenceScreen),
+        );
+        expect(screen.entry.name, 'first');
+      });
+
+      testWidgets('Delete removes only the selected rows, after confirming', (
+        tester,
+      ) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        await select(tester, 'first');
+        await tester.tap(find.text('third'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete 2 entries?'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(TextButton, 'Delete').last);
+        await tester.pumpAndSettle();
+
+        expect(store.entries.map((e) => e.name), ['second']);
+        expect(find.text('Deleted 2 entries'), findsOneWidget);
+        // The selection went with the rows, so the normal bar is back.
+        expect(find.text('Saved Sequences'), findsOneWidget);
+        expect(find.byType(Checkbox), findsNothing);
+      });
+
+      testWidgets('one selected row reads in the singular', (tester) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        await select(tester, 'second');
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete 1 entry?'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(TextButton, 'Delete').last);
+        await tester.pumpAndSettle();
+
+        expect(store.entries.map((e) => e.name), ['first', 'third']);
+        expect(find.text('Deleted 1 entry'), findsOneWidget);
+      });
+
+      testWidgets('Cancel keeps both the entries and the selection', (
+        tester,
+      ) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        await select(tester, 'second');
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+        await tester.pumpAndSettle();
+
+        expect(store.entries, hasLength(3));
+        // Still ticked: a cancelled dialog undoes the delete, not the choosing.
+        expect(selectedNames(tester), ['second']);
+      });
+
+      testWidgets('a selection delete that cannot be written says so', (
+        tester,
+      ) async {
+        final backing = FakeKeyValueStore();
+        final store = await threeEntries(backing);
+        await tester.pumpApp(const SavedListScreen(), store: store);
+        backing.failWrites = true;
+
+        await select(tester, 'second');
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Delete').last);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Deleted 1 entry'), findsNothing);
+        expect(find.textContaining('Storage is unavailable'), findsOneWidget);
+        expect(store.entries.map((e) => e.name), ['first', 'third']);
+      });
+
+      testWidgets('the contextual bar fits a 320dp viewport', (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await select(tester, 'second');
+        await tester.tap(find.text('Select all'));
+        await tester.pumpAndSettle();
+
+        // Three digits' worth of title plus two actions is the widest this bar
+        // ever gets, and it has to survive the fat test font.
+        expect(tester.takeException(), isNull);
+        expect(
+          tester.getRect(find.widgetWithText(TextButton, 'Delete')).right,
+          lessThanOrEqualTo(320),
+        );
+      });
     });
   });
 }
