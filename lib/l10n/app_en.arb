@@ -232,6 +232,14 @@
   "@noSaved": {
     "description": "Empty state of the saved sequences list."
   },
+  "search": "Search",
+  "@search": {
+    "description": "Tooltip of the app bar action that filters the saved sequences by name, and the hint of the field it opens."
+  },
+  "noMatches": "No matching entries",
+  "@noMatches": {
+    "description": "Shown in place of the saved sequences list when a filter is on and no name matches it."
+  },
   "selectAll": "Select all",
   "@selectAll": {
     "description": "Action that selects every saved sequence, shown while a selection is in progress."

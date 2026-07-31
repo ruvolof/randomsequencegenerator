@@ -13,8 +13,9 @@ import 'show_sequence_screen.dart';
 /// and notifies; the legacy version hid a recycled `ListView` row instead, so
 /// the entry came back on scroll and an unrelated row vanished (bug 4).
 ///
-/// Stateful for the selection alone: which rows are ticked is this screen's
-/// business and nothing else's, so it stays here rather than in the store.
+/// Stateful for the selection and the filter: which rows are ticked and which
+/// are being looked for are this screen's business and nothing else's, so both
+/// stay here rather than in the store.
 class SavedListScreen extends StatefulWidget {
   const SavedListScreen({super.key});
 
@@ -27,18 +28,56 @@ class _SavedListScreenState extends State<SavedListScreen> {
   /// unique across the list, so an index would only be a weaker version of it.
   final Set<String> _selected = <String>{};
 
+  /// The filter's text. Its own field rather than a `String` beside it, so
+  /// there is one copy of the query and the field cannot disagree with it.
+  final TextEditingController _search = TextEditingController();
+
+  /// Whether the search field is up. Distinct from having typed something: an
+  /// open field with an empty query still filters nothing but owns the app bar.
+  bool _searching = false;
+
   /// One selected row is what puts the screen in selection mode; there is no
   /// separate flag to fall out of step with the set.
   bool get _selecting => _selected.isNotEmpty;
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   void _toggle(String name) => setState(() {
     if (!_selected.remove(name)) _selected.add(name);
   });
 
+  /// Ticks every row the filter currently lets through — [entries] is the list
+  /// on screen, not the store's. Selecting rows the user cannot see would make
+  /// the count in the title, and the confirmation under it, describe entries
+  /// that are nowhere on screen.
   void _selectAll(List<SavedEntry> entries) =>
       setState(() => _selected.addAll(entries.map((entry) => entry.name)));
 
   void _clearSelection() => setState(_selected.clear);
+
+  void _openSearch() => setState(() => _searching = true);
+
+  /// Closes the field *and* drops the query: leaving a filter running behind a
+  /// bar that no longer shows it is how a list ends up looking half-empty for
+  /// no visible reason.
+  void _closeSearch() => setState(() {
+    _searching = false;
+    _search.clear();
+  });
+
+  /// The rows the filter lets through, by case-insensitive substring — the
+  /// whole list while the query is empty.
+  List<SavedEntry> _matching(List<SavedEntry> entries) {
+    final query = _search.text.toLowerCase();
+    if (query.isEmpty) return entries;
+    return entries
+        .where((entry) => entry.name.toLowerCase().contains(query))
+        .toList();
+  }
 
   /// Deletes the selection, confirming with its size first.
   ///
@@ -79,45 +118,36 @@ class _SavedListScreenState extends State<SavedListScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final store = SavedStoreScope.of(context);
-    final entries = store.entries;
+    final stored = store.entries;
+    final entries = _matching(stored);
 
-    // Three ways out of selection mode, and this is the one for the system back
-    // gesture: swallow the pop and drop the selection instead of leaving the
-    // screen, which is what every list with a contextual bar does.
+    // Both modes swallow the system back gesture, so the gesture and the
+    // buttons in the bar agree on what leaving means. The selection is checked
+    // first because its bar is the one on screen when both are on.
     return PopScope(
-      canPop: !_selecting,
+      canPop: !_selecting && !_searching,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _clearSelection();
+        if (didPop) return;
+        if (_selecting) {
+          _clearSelection();
+        } else {
+          _closeSearch();
+        }
       },
       child: Scaffold(
         appBar: _selecting
-            ? AppBar(
-                // Replaces the back arrow, so the gesture and the button agree
-                // on what leaving means while rows are ticked.
-                leading: IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: l10n.cancel,
-                  onPressed: _clearSelection,
-                ),
-                title: Text(l10n.selectedCount(_selected.length)),
-                actions: [
-                  TextButton(
-                    onPressed: () => _selectAll(entries),
-                    child: Text(l10n.selectAll),
-                  ),
-                  TextButton(
-                    onPressed: _deleteSelected,
-                    child: Text(l10n.delete),
-                  ),
-                ],
-              )
-            // No actions of its own: emptying the list goes through the
-            // selection like every other delete.
-            : AppBar(title: Text(l10n.titleActivityShowSaved)),
+            ? _selectionBar(l10n, entries)
+            : _searching
+            ? _searchBar(context, l10n)
+            : _plainBar(l10n, stored.isNotEmpty),
         body: entries.isEmpty
             ? Center(
                 child: Text(
-                  l10n.noSaved,
+                  // An empty list and a filter that matches nothing are
+                  // different situations: the second one is undone by clearing
+                  // the query, and saying "No saved entries" over a list that
+                  // has some would be a lie.
+                  stored.isEmpty ? l10n.noSaved : l10n.noMatches,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -138,6 +168,78 @@ class _SavedListScreenState extends State<SavedListScreen> {
       ),
     );
   }
+
+  /// The resting bar. Its only action opens the filter, and only once there is
+  /// something to filter — a search over an empty list has no answer to give.
+  PreferredSizeWidget _plainBar(AppLocalizations l10n, bool hasEntries) =>
+      AppBar(
+        title: Text(l10n.titleActivityShowSaved),
+        // Emptying the list still goes through the selection: nothing here
+        // destroys entries the user has not pointed at.
+        actions: [
+          if (hasEntries)
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.search,
+              onPressed: _openSearch,
+            ),
+        ],
+      );
+
+  /// The filter. Typing rebuilds the list under it on every keystroke, which is
+  /// affordable because the list is already in memory.
+  PreferredSizeWidget _searchBar(BuildContext context, AppLocalizations l10n) =>
+      AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          // Flutter's own string, so the exit needs no ARB key of its own.
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: _closeSearch,
+        ),
+        title: TextField(
+          controller: _search,
+          autofocus: true,
+          // A name is not prose, and the list is the only thing being matched.
+          autocorrect: false,
+          textInputAction: TextInputAction.search,
+          onChanged: (_) => setState(() {}),
+          style: Theme.of(context).textTheme.titleMedium,
+          decoration: InputDecoration(
+            hintText: l10n.search,
+            // All three, not just `border`: the app theme sets `enabledBorder`
+            // and `focusedBorder`, and those win over `border` — leaving them
+            // draws an underline across the app bar.
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+          ),
+        ),
+        // No clear button in the field: the arrow beside it already empties the
+        // query, and a second control doing the same thing is the one that has
+        // to earn its place.
+      );
+
+  /// The contextual bar, which replaces whichever of the other two is up.
+  PreferredSizeWidget _selectionBar(
+    AppLocalizations l10n,
+    List<SavedEntry> entries,
+  ) => AppBar(
+    // Replaces the back arrow, so the gesture and the button agree on what
+    // leaving means while rows are ticked.
+    leading: IconButton(
+      icon: const Icon(Icons.close),
+      tooltip: l10n.cancel,
+      onPressed: _clearSelection,
+    ),
+    title: Text(l10n.selectedCount(_selected.length)),
+    actions: [
+      TextButton(
+        onPressed: () => _selectAll(entries),
+        child: Text(l10n.selectAll),
+      ),
+      TextButton(onPressed: _deleteSelected, child: Text(l10n.delete)),
+    ],
+  );
 }
 
 /// One saved name, with everything you can do to it.

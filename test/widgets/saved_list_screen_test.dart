@@ -241,6 +241,175 @@ void main() {
       expect(store.entries.map((e) => e.name), ['first', 'third']);
     });
 
+    group('filter', () {
+      /// Opens the search field and types [query] into it.
+      Future<void> search(WidgetTester tester, String query) async {
+        await tester.tap(find.byIcon(Icons.search));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), query);
+        await tester.pumpAndSettle();
+      }
+
+      /// The names of the rows currently on screen.
+      Iterable<String> rowNames(WidgetTester tester) => tester
+          .widgetList<ListTile>(find.byType(ListTile))
+          .map((tile) => (tile.title! as Text).data!);
+
+      testWidgets('the search action opens a field and narrows the list', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        // Nothing about the filter is on screen until the action is tapped.
+        expect(find.byType(TextField), findsNothing);
+
+        await search(tester, 'ir');
+
+        expect(find.byType(TextField), findsOneWidget);
+        expect(rowNames(tester), ['first', 'third']);
+        // The title made way for the field.
+        expect(find.text('Saved Sequences'), findsNothing);
+      });
+
+      testWidgets('the filter ignores case', (tester) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await search(tester, 'SEC');
+
+        expect(rowNames(tester), ['second']);
+      });
+
+      testWidgets('an empty list offers no search', (tester) async {
+        await tester.pumpApp(const SavedListScreen());
+
+        // There is nothing to look for, and the answer would be the empty
+        // state either way.
+        expect(find.byIcon(Icons.search), findsNothing);
+      });
+
+      testWidgets('a query matching nothing says so, and not "no entries"', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await search(tester, 'zzz');
+
+        expect(rowNames(tester), isEmpty);
+        expect(find.text('No matching entries'), findsOneWidget);
+        // The list is not empty; only the view of it is.
+        expect(find.text('No saved entries'), findsNothing);
+      });
+
+      testWidgets('the back arrow closes the search and drops the query', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await search(tester, 'sec');
+        await tester.tap(find.byIcon(Icons.arrow_back));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(TextField), findsNothing);
+        expect(find.text('Saved Sequences'), findsOneWidget);
+        // No filter left running behind a bar that no longer shows it.
+        expect(rowNames(tester), ['first', 'second', 'third']);
+      });
+
+      testWidgets('system back closes the search before the screen', (
+        tester,
+      ) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await search(tester, 'sec');
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SavedListScreen), findsOneWidget);
+        expect(find.byType(TextField), findsNothing);
+        expect(rowNames(tester), ['first', 'second', 'third']);
+      });
+
+      testWidgets('Select all under a filter ticks only the matches', (
+        tester,
+      ) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        await search(tester, 'ir');
+        await tester.longPress(find.text('first'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Select all'));
+        await tester.pumpAndSettle();
+
+        // "second" is neither on screen nor in the count: selecting rows the
+        // user cannot see would make the confirmation describe entries that
+        // are nowhere to be found.
+        expect(find.text('2 selected'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete 2 entries?'), findsOneWidget);
+        await tester.tap(find.widgetWithText(TextButton, 'Delete').last);
+        await tester.pumpAndSettle();
+
+        expect(store.entries.map((e) => e.name), ['second']);
+      });
+
+      testWidgets('the selection bar replaces the search bar, and gives it '
+          'back with the query intact', (tester) async {
+        await tester.pumpApp(
+          const SavedListScreen(),
+          store: await threeEntries(),
+        );
+
+        await search(tester, 'ir');
+        await tester.longPress(find.text('third'));
+        await tester.pumpAndSettle();
+
+        // Only one bar at a time, and while rows are ticked it is this one.
+        expect(find.byType(TextField), findsNothing);
+        expect(find.text('1 selected'), findsOneWidget);
+
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(TextField), findsOneWidget);
+        expect(find.text('ir'), findsOneWidget);
+        expect(rowNames(tester), ['first', 'third']);
+      });
+
+      testWidgets("a filtered row's actions still act on it", (tester) async {
+        final store = await threeEntries();
+        await tester.pumpApp(const SavedListScreen(), store: store);
+
+        await search(tester, 'sec');
+        await openSheet(tester, 'second');
+        await tester.tap(sheetAction('Delete'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+
+        expect(store.entries.map((e) => e.name), ['first', 'third']);
+        // The filter outlives the delete, and now matches nothing.
+        expect(find.text('No matching entries'), findsOneWidget);
+      });
+    });
+
     group('selection', () {
       /// Long-presses [name], which is what puts the screen in selection mode.
       Future<void> select(WidgetTester tester, String name) async {
