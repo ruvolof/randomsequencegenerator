@@ -31,7 +31,20 @@ class SavedStore extends ChangeNotifier {
   bool containsName(String name) => _entries.any((entry) => entry.name == name);
 
   Future<void> load() async {
-    _entries = decode(await _keyValueStore.getString(storageKey));
+    String? raw;
+    try {
+      raw = await _keyValueStore.getString(storageKey);
+    } catch (_) {
+      // `main` awaits this before `runApp`, so anything thrown here would cost
+      // the user the whole app rather than the saved list. The platform call
+      // fails in more ways than one type can name — `SharedPreferencesAsync`
+      // raises `PlatformException` when the channel is down and `TypeError`
+      // when a key holds another type — so the catch is deliberately broad.
+      // Starting empty is indistinguishable from having nothing saved; the
+      // next write repairs the key.
+      raw = null;
+    }
+    _entries = decode(raw);
     notifyListeners();
   }
 

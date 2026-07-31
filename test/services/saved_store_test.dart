@@ -78,6 +78,20 @@ void main() {
       expect(store.isEmpty, isFalse);
     });
 
+    test('a failed read leaves the store empty instead of throwing', () async {
+      final failing = SavedStore(ThrowingKeyValueStore());
+      addTearDown(failing.dispose);
+      var notifications = 0;
+      failing.addListener(() => notifications++);
+
+      // `main` awaits this before `runApp`: throwing here means no first frame.
+      await failing.load();
+
+      expect(failing.entries, isEmpty);
+      expect(failing.isEmpty, isTrue);
+      expect(notifications, 1);
+    });
+
     test(
       'round-trips a JSON entry preserving the millisecond and the mode',
       () async {

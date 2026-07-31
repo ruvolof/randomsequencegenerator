@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:random_sequence_generator/services/key_value_store.dart';
 
 /// An in-memory [KeyValueStore], so store tests need no plugin mocking.
@@ -18,4 +19,17 @@ class FakeKeyValueStore implements KeyValueStore {
     values[key] = value;
     writes.add(key);
   }
+}
+
+/// A [KeyValueStore] whose read fails the way the platform does when the
+/// plugin's channel is unavailable.
+class ThrowingKeyValueStore implements KeyValueStore {
+  @override
+  Future<String?> getString(String key) async => throw PlatformException(
+    code: 'channel-error',
+    message: 'Unable to establish connection on channel.',
+  );
+
+  @override
+  Future<void> setString(String key, String value) async {}
 }
