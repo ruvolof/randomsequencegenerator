@@ -49,9 +49,16 @@ class _MainScreenState extends State<MainScreen> {
   GenerationMode _mode = GenerationMode.binary;
   ClassSelection _classes = ClassSelection.none;
   UuidOptions _uuidOptions = UuidOptions.defaults;
-  String _result = '';
   bool _lengthTouched = false;
   bool _maskTouched = false;
+
+  /// The sequence on screen and the mode that produced it, or null before the
+  /// first successful generation.
+  ///
+  /// The two travel together because the result outlives a mode change: the
+  /// radio can move after Create, and a save must still record where the
+  /// sequence actually came from rather than whatever is selected by then.
+  ({String text, GenerationMode mode})? _result;
 
   @override
   void initState() {
@@ -85,9 +92,19 @@ class _MainScreenState extends State<MainScreen> {
     _ => _length != null,
   };
 
+  /// Records [text] as the result, stamped with the mode generating it right
+  /// now. Only [_create] calls this, so [_mode] is that mode by construction.
+  void _setResult(String text) {
+    setState(() => _result = (text: text, mode: _mode));
+  }
+
+  void _clearResult() {
+    setState(() => _result = null);
+  }
+
   void _create() {
     if (_mode == GenerationMode.uuid) {
-      setState(() => _result = _generator.generateUuid(_uuidOptions));
+      _setResult(_generator.generateUuid(_uuidOptions));
       return;
     }
 
@@ -96,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
       // Create is disabled while the mask is unusable, and the field carries the
       // reason — so unlike the empty pool below there is nothing to announce.
       if (!pattern.isValid) return;
-      setState(() => _result = _generator.generateFromMask(pattern));
+      _setResult(_generator.generateFromMask(pattern));
       return;
     }
 
@@ -112,7 +129,7 @@ class _MainScreenState extends State<MainScreen> {
     if (pool.isEmpty) {
       // The legacy app silently did nothing here and hid the buttons. Hide them
       // the same way, but say why.
-      setState(() => _result = '');
+      _clearResult();
       final messenger = ScaffoldMessenger.of(context);
       messenger
         ..hideCurrentSnackBar()
@@ -122,16 +139,17 @@ class _MainScreenState extends State<MainScreen> {
       return;
     }
 
-    setState(() {
-      _result = _generator.generate(pool: pool, length: length);
-    });
+    _setResult(_generator.generate(pool: pool, length: length));
   }
 
   Future<void> _save() async {
+    final result = _result;
+    // Unreachable: the Save button only exists while a result does.
+    if (result == null) return;
+
     final l10n = AppLocalizations.of(context);
     final store = SavedStoreScope.read(context);
     final messenger = ScaffoldMessenger.of(context);
-    final sequence = _result;
 
     final name = await showSaveAsDialog(context);
     if (name == null) return;
@@ -151,9 +169,10 @@ class _MainScreenState extends State<MainScreen> {
     await store.upsert(
       SavedEntry(
         name: name,
-        sequence: sequence,
+        sequence: result.text,
         createdAt: DateTime.now(),
-        mode: _mode,
+        // The mode that generated this sequence, not the one selected now.
+        mode: result.mode,
       ),
     );
     messenger
@@ -164,6 +183,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final result = _result;
 
     return Scaffold(
       appBar: AppBar(
@@ -249,7 +269,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
             const SizedBox(height: 16),
-            ResultDisplay(text: _result, emptyHint: l10n.gotoSaved),
+            ResultDisplay(text: result?.text ?? '', emptyHint: l10n.gotoSaved),
           ],
         ),
       ),
@@ -275,7 +295,7 @@ class _MainScreenState extends State<MainScreen> {
                   // the actions stay put while the result scrolls. Hidden until
                   // the first successful generation, and hidden again whenever
                   // the pool comes out empty — as in the legacy screen.
-                  if (_result.isNotEmpty) ...[
+                  if (result != null) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -283,7 +303,7 @@ class _MainScreenState extends State<MainScreen> {
                           icon: Icons.content_copy,
                           label: l10n.copy,
                           onPressed: () =>
-                              TextActions.copyToClipboard(context, _result),
+                              TextActions.copyToClipboard(context, result.text),
                         ),
                         IconActionButton(
                           icon: Icons.save,
@@ -294,7 +314,7 @@ class _MainScreenState extends State<MainScreen> {
                           icon: Icons.share,
                           label: l10n.send,
                           onPressed: () =>
-                              TextActions.shareText(context, _result),
+                              TextActions.shareText(context, result.text),
                         ),
                       ],
                     ),

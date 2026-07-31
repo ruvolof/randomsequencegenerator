@@ -282,6 +282,23 @@ void main() {
         );
       });
 
+      testWidgets('stamps the mode that generated the sequence, not the one '
+          'selected when Save is pressed', (tester) async {
+        final store = await pumpWithStore(tester, FakeKeyValueStore());
+        final result = shownResult(tester);
+
+        // The result outlives the radio moving off Binary, so the entry has to
+        // remember where it came from.
+        await tester.tap(find.text('Hexadecimal'));
+        await tester.pumpAndSettle();
+        expect(shownResult(tester), result);
+
+        await saveAs(tester, 'mine');
+
+        expect(store.entries.single.sequence, result);
+        expect(store.entries.single.mode, GenerationMode.binary);
+      });
+
       testWidgets('bug 8 — a blank name is rejected inside the dialog', (
         tester,
       ) async {
