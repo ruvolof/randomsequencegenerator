@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/mask_pattern.dart';
 import '../services/sequence_generator.dart';
+import '../theme/mono_font.dart';
 
 /// The mask template field.
 ///
@@ -39,10 +40,10 @@ class MaskField extends StatelessWidget {
       inputFormatters: [
         LengthLimitingTextInputFormatter(SequenceGenerator.maxMaskLength),
       ],
-      style: const TextStyle(fontFamily: 'monospace'),
+      style: MonoFont.style,
       decoration: InputDecoration(
         hintText: l10n.maskHint,
-        hintStyle: const TextStyle(fontFamily: 'monospace'),
+        hintStyle: MonoFont.style,
         errorText: switch (error) {
           null => null,
           MaskError.noPlaceholder => l10n.maskErrorNoPlaceholder,

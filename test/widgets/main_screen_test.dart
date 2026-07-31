@@ -11,6 +11,7 @@ import 'package:random_sequence_generator/screens/saved_list_screen.dart';
 import 'package:random_sequence_generator/services/char_pools.dart';
 import 'package:random_sequence_generator/services/saved_store.dart';
 import 'package:random_sequence_generator/services/sequence_generator.dart';
+import 'package:random_sequence_generator/widgets/mask_legend.dart';
 
 import '../support/fake_key_value_store.dart';
 import '../support/pump_app.dart';
@@ -557,6 +558,36 @@ void main() {
             reason: 'token $token missing from the legend',
           );
         }
+      });
+
+      // `fontFamily: 'monospace'` on its own is an Android-only alias: both
+      // places that show mask syntax have to name families the other platforms
+      // resolve too, or they render proportional there.
+      testWidgets('mask syntax asks for a monospace face on every platform', (
+        tester,
+      ) async {
+        await tester.pumpApp(mainScreen());
+        await selectMask(tester);
+
+        final field = tester.widget<TextField>(find.byType(TextField));
+        final token = tester.widget<Text>(find.text('#'));
+
+        for (final style in [
+          field.style,
+          field.decoration?.hintStyle,
+          token.style,
+        ]) {
+          expect(style?.fontFamily, 'monospace');
+          expect(style?.fontFamilyFallback, contains('Menlo'));
+        }
+
+        // The legend merges into its base style rather than replacing it, so
+        // the token column keeps the body text size.
+        final context = tester.element(find.byType(MaskLegend));
+        expect(
+          token.style?.fontSize,
+          Theme.of(context).textTheme.bodyMedium?.fontSize,
+        );
       });
 
       testWidgets('Create is disabled until a usable mask is typed', (

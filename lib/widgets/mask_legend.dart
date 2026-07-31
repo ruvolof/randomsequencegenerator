@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../services/char_pools.dart';
+import '../theme/mono_font.dart';
 
 /// The mask syntax, on screen.
 ///
@@ -36,9 +37,7 @@ class MaskLegend extends StatelessWidget {
       (CharPools.maskEscape, l10n.maskTokenEscape),
     ];
 
-    final tokenStyle = theme.textTheme.bodyMedium?.copyWith(
-      fontFamily: 'monospace',
-    );
+    final tokenStyle = theme.textTheme.bodyMedium?.merge(MonoFont.style);
     final descriptionStyle = theme.textTheme.bodySmall?.copyWith(
       color: scheme.onSurfaceVariant,
     );
