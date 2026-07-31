@@ -1,10 +1,6 @@
 {
   "@@locale": "en",
 
-  "appName": "RandomSequenceGenerator",
-  "@appName": {
-    "description": "The application name, as shown by the launcher."
-  },
   "titleActivityRsgMain": "Random Sequence Generator",
   "@titleActivityRsgMain": {
     "description": "Title of the main screen."
@@ -186,10 +182,6 @@
   "@create": {
     "description": "Button that generates a new sequence."
   },
-  "defaultLength": "32",
-  "@defaultLength": {
-    "description": "The sequence length the app starts with."
-  },
   "length": "Length",
   "@length": {
     "description": "Label of the sequence length field."
@@ -282,10 +274,6 @@
   "titleActivityShowSingle": "Show Sequences",
   "@titleActivityShowSingle": {
     "description": "Title of the screen that displays one saved sequence."
-  },
-  "stringNotfound": "There isn't any saved string which matches this key.",
-  "@stringNotfound": {
-    "description": "Shown when a stored entry cannot be read back."
   },
 
   "coin": "Coin",

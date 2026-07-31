@@ -67,8 +67,9 @@ class _MainScreenState extends State<MainScreen> {
     _lengthController.text = _defaultLength;
   }
 
-  // The legacy default_length string resource, kept as a string because that is
-  // what the field holds.
+  // The length the app starts with. A string because that is what the field
+  // holds, and a plain const rather than an ARB key: a default is not
+  // translatable content.
   static const String _defaultLength = '32';
 
   @override
