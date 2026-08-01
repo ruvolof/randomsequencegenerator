@@ -296,9 +296,19 @@
   "@flip": {
     "description": "Button that starts a coin flip."
   },
-  "clickOnFlip": "Click on flip",
+  "clickOnFlip": "Tap the coin to flip",
   "@clickOnFlip": {
-    "description": "Hint shown in the coin area before the first flip."
+    "description": "Hint shown under the coin before the first flip. The coin itself is the tap target; the Flip button below is the second way in. The legacy value said 'Click on flip', written for a screen nobody taps."
+  },
+  "tossCount": "{count, plural, =1{1 flip} other{{count} flips}}",
+  "@tossCount": {
+    "description": "Total number of flips in this session, under the per-face tally. Cleared when the screen is left.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
   },
 
   "lengthInvalid": "Enter a number between {min} and {max}",

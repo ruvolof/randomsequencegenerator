@@ -21,7 +21,7 @@ import '../widgets/result_display.dart';
 import '../widgets/save_as_dialog.dart';
 import '../widgets/section_header.dart';
 import '../widgets/uuid_options_selector.dart';
-import 'coin_screen.dart';
+import 'toss_screen.dart';
 import 'saved_list_screen.dart';
 
 /// The generator screen.
@@ -204,7 +204,7 @@ class _MainScreenState extends State<MainScreen> {
           TextButton(
             onPressed: () => Navigator.of(
               context,
-            ).push(MaterialPageRoute<void>(builder: (_) => const CoinScreen())),
+            ).push(MaterialPageRoute<void>(builder: (_) => const TossScreen())),
             child: Text(l10n.coin),
           ),
         ],

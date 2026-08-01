@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
-import 'package:random_sequence_generator/screens/coin_screen.dart';
+import 'package:random_sequence_generator/screens/toss_screen.dart';
 import 'package:random_sequence_generator/screens/main_screen.dart';
 import 'package:random_sequence_generator/screens/saved_list_screen.dart';
 import 'package:random_sequence_generator/services/char_pools.dart';
@@ -810,7 +810,7 @@ void main() {
 
       await tester.tap(find.text('Coin'));
       await tester.pumpAndSettle();
-      expect(find.byType(CoinScreen), findsOneWidget);
+      expect(find.byType(TossScreen), findsOneWidget);
     });
   });
 }

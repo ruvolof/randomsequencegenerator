@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
 import 'package:random_sequence_generator/models/saved_entry.dart';
-import 'package:random_sequence_generator/screens/coin_screen.dart';
+import 'package:random_sequence_generator/models/toss_kind.dart';
 import 'package:random_sequence_generator/screens/saved_list_screen.dart';
 import 'package:random_sequence_generator/screens/show_sequence_screen.dart';
-import 'package:random_sequence_generator/services/coin_flip_controller.dart';
+import 'package:random_sequence_generator/screens/toss_screen.dart';
+import 'package:random_sequence_generator/services/toss_controller.dart';
 import 'package:random_sequence_generator/theme/app_theme.dart';
 import 'package:random_sequence_generator/widgets/result_display.dart';
+import 'package:random_sequence_generator/widgets/toss/coin_face.dart';
 
 import '../support/pump_app.dart';
 
@@ -18,16 +20,21 @@ import '../support/pump_app.dart';
 const Color probe = Color(0xFF00FF7F);
 
 /// The real theme with one role moved. Everything else stays as shipped, so a
-/// widget that follows [ColorScheme.onSurface] is the only thing that moves.
-ThemeData themeWithOnSurface(Color color) {
+/// widget that follows that role is the only thing that moves.
+ThemeData themeWithScheme(ColorScheme Function(ColorScheme) move) {
   final base = AppTheme.build();
-  return base.copyWith(
-    colorScheme: base.colorScheme.copyWith(onSurface: color),
-  );
+  return base.copyWith(colorScheme: move(base.colorScheme));
 }
+
+ThemeData themeWithOnSurface(Color color) =>
+    themeWithScheme((scheme) => scheme.copyWith(onSurface: color));
 
 Color? colorOf(WidgetTester tester, Finder finder) =>
     tester.widget<Text>(finder).style?.color;
+
+/// The digit struck on the coin, whichever face is being painted.
+Finder get coinDigit =>
+    find.descendant(of: find.byType(CoinFace), matching: find.byType(Text));
 
 /// [ResultDisplay] is a `SelectableText`, which renders through an
 /// `EditableText` rather than a `Text` — this is the style it ends up painting.
@@ -48,25 +55,67 @@ void main() {
       expect(selectableColorOf(tester), probe);
     });
 
-    testWidgets('the coin hint and the coin face follow onSurface', (
-      tester,
-    ) async {
-      final controller = CoinFlipController(random: Random(1));
+    testWidgets('the coin digit follows onSurface', (tester) async {
+      final controller = TossController(
+        faces: TossKind.coin.faces,
+        random: Random(1),
+      );
       addTearDown(controller.dispose);
       await tester.pumpApp(
-        CoinScreen(controller: controller),
+        TossScreen(controller: controller),
         theme: themeWithOnSurface(probe),
       );
 
-      expect(colorOf(tester, find.text('Click on flip')), probe);
-
       await tester.tap(find.text('Flip'));
       await tester.pump();
-      for (var i = 0; i < 40; i++) {
-        await tester.pump(CoinFlipController.tick);
+      for (var i = 0; i < 400; i++) {
+        await tester.pump(const Duration(milliseconds: 25));
       }
 
-      expect(colorOf(tester, find.text('${controller.face}')), probe);
+      expect(colorOf(tester, coinDigit), probe);
+    });
+
+    testWidgets('the coin hint follows onSurfaceVariant', (tester) async {
+      // Not `onSurface`: the hint is a caption under the coin, in the same
+      // secondary role every other hint and section label uses.
+      await tester.pumpApp(
+        TossScreen(controller: TossController(faces: 2, random: Random(1))),
+        theme: themeWithScheme(
+          (scheme) => scheme.copyWith(onSurfaceVariant: probe),
+        ),
+      );
+
+      expect(colorOf(tester, find.text('Tap the coin to flip')), probe);
+    });
+
+    testWidgets('the coin disc and its rim come from the theme', (
+      tester,
+    ) async {
+      // The reason the coin is drawn rather than bundled: a PNG would have
+      // frozen these two colours at export time.
+      await tester.pumpApp(
+        TossScreen(controller: TossController(faces: 2, random: Random(1))),
+        theme: themeWithScheme(
+          (scheme) =>
+              scheme.copyWith(surfaceContainerHighest: probe, primary: probe),
+        ),
+      );
+
+      final decorations = tester
+          .widgetList<DecoratedBox>(
+            find.descendant(
+              of: find.byType(CoinFace),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .map((box) => box.decoration as BoxDecoration)
+          .toList();
+
+      final disc = decorations.firstWhere((d) => d.gradient != null);
+      expect((disc.gradient! as RadialGradient).colors.first, probe);
+
+      final rim = decorations.firstWhere((d) => d.border != null);
+      expect(rim.border!.top.color, probe.withValues(alpha: 0.55));
     });
 
     testWidgets('the empty saved list follows onSurface', (tester) async {
