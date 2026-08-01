@@ -14,13 +14,15 @@ abstract final class Dimens {
   /// Font size of a displayed sequence.
   static const double outputText = 30;
 
-  /// Font size of the coin digit, scaled down by a [FittedBox] when it cannot
-  /// fit the coin area.
-  static const double coinText = 160;
+  /// Font size of the value struck on a tossed object, scaled down by a
+  /// [FittedBox] when it cannot fit.
+  static const double tossText = 160;
 
-  /// Height of the coin area on a phone.
-  static const double coinViewHeight = 280;
+  /// Largest a tossed object is drawn on a phone. The legacy `coin_view_height`
+  /// was the fixed height of a coin *area*; it is a maximum diameter now, and
+  /// it bounds a die as well as a coin.
+  static const double tossMaxSize = 280;
 
-  /// Height of the coin area on a `sw600dp` device.
-  static const double coinViewHeightTablet = 360;
+  /// The same, on a `sw600dp` device.
+  static const double tossMaxSizeTablet = 360;
 }

@@ -12,6 +12,7 @@ import 'package:random_sequence_generator/services/toss_controller.dart';
 import 'package:random_sequence_generator/theme/app_theme.dart';
 import 'package:random_sequence_generator/widgets/result_display.dart';
 import 'package:random_sequence_generator/widgets/toss/coin_face.dart';
+import 'package:random_sequence_generator/widgets/toss/die_face.dart';
 
 import '../support/pump_app.dart';
 
@@ -116,6 +117,67 @@ void main() {
 
       final rim = decorations.firstWhere((d) => d.border != null);
       expect(rim.border!.top.color, probe.withValues(alpha: 0.55));
+    });
+
+    testWidgets('the die numeral follows onSurface', (tester) async {
+      await tester.pumpApp(
+        const TossScreen(kind: TossKind.d20),
+        theme: themeWithOnSurface(probe),
+      );
+
+      await tester.tap(find.text('Roll'));
+      await tester.pump();
+      for (var i = 0; i < 400; i++) {
+        await tester.pump(const Duration(milliseconds: 25));
+      }
+
+      expect(
+        colorOf(
+          tester,
+          find.descendant(
+            of: find.byType(DieFace),
+            matching: find.byType(Text),
+          ),
+        ),
+        probe,
+      );
+    });
+
+    testWidgets('the die body and its rim come from the theme', (tester) async {
+      // Same reason the coin is drawn: these come off the ColorScheme, and a
+      // bundled sprite sheet could not have passed this.
+      await tester.pumpApp(
+        const TossScreen(kind: TossKind.d12),
+        theme: themeWithScheme(
+          (scheme) =>
+              scheme.copyWith(surfaceContainerHighest: probe, primary: probe),
+        ),
+      );
+
+      final body = tester
+          .widgetList<CustomPaint>(
+            find.descendant(
+              of: find.byType(DieFace),
+              matching: find.byType(CustomPaint),
+            ),
+          )
+          .map((paint) => paint.painter)
+          .whereType<DieBody>()
+          .single;
+
+      expect(body.fillFrom, probe);
+      expect(body.rim, probe.withValues(alpha: 0.55));
+    });
+
+    testWidgets('the die hint follows onSurfaceVariant', (tester) async {
+      await tester.pumpApp(
+        const TossScreen(kind: TossKind.d6),
+        theme: themeWithScheme(
+          (scheme) => scheme.copyWith(onSurfaceVariant: probe),
+        ),
+      );
+
+      expect(colorOf(tester, find.text('Tap the die to roll')), probe);
     });
 
     testWidgets('the empty saved list follows onSurface', (tester) async {

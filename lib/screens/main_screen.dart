@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../models/app_section.dart';
 import '../models/class_selection.dart';
 import '../models/generation_mode.dart';
 import '../models/mask_pattern.dart';
@@ -20,8 +21,8 @@ import '../widgets/mode_selector.dart';
 import '../widgets/result_display.dart';
 import '../widgets/save_as_dialog.dart';
 import '../widgets/section_header.dart';
+import '../widgets/section_menu.dart';
 import '../widgets/uuid_options_selector.dart';
-import 'toss_screen.dart';
 import 'saved_list_screen.dart';
 
 /// The generator screen.
@@ -201,12 +202,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             child: Text(l10n.saved),
           ),
-          TextButton(
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute<void>(builder: (_) => const TossScreen())),
-            child: Text(l10n.coin),
-          ),
+          const SectionMenu(current: AppSection.strings),
         ],
       ),
       body: SingleChildScrollView(

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:random_sequence_generator/models/app_section.dart';
 import 'package:random_sequence_generator/models/generation_mode.dart';
 import 'package:random_sequence_generator/screens/toss_screen.dart';
 import 'package:random_sequence_generator/screens/main_screen.dart';
@@ -13,6 +14,7 @@ import 'package:random_sequence_generator/services/saved_store.dart';
 import 'package:random_sequence_generator/services/sequence_generator.dart';
 import 'package:random_sequence_generator/widgets/mask_legend.dart';
 import 'package:random_sequence_generator/widgets/section_header.dart';
+import 'package:random_sequence_generator/widgets/section_menu.dart';
 
 import '../support/fake_key_value_store.dart';
 import '../support/pump_app.dart';
@@ -808,7 +810,12 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Coin'));
+      // The coin is behind the section menu now, not an action of its own.
+      await tester.tap(find.byType(SectionMenu));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(CheckedPopupMenuItem<AppSection>, 'Coin'),
+      );
       await tester.pumpAndSettle();
       expect(find.byType(TossScreen), findsOneWidget);
     });

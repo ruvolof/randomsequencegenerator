@@ -284,13 +284,13 @@
     "description": "Title of the screen that displays one saved sequence."
   },
 
+  "sectionStrings": "Strings",
+  "@sectionStrings": {
+    "description": "Name of the sequence generator section, in the section menu at the top right of every screen."
+  },
   "coin": "Coin",
   "@coin": {
-    "description": "App bar action that opens the coin flip screen."
-  },
-  "titleActivityLaunchCoin": "Launch Coin",
-  "@titleActivityLaunchCoin": {
-    "description": "Title of the coin flip screen."
+    "description": "Name of the coin section, in the section menu at the top right of every screen."
   },
   "flip": "Flip",
   "@flip": {
@@ -303,6 +303,29 @@
   "tossCount": "{count, plural, =1{1 flip} other{{count} flips}}",
   "@tossCount": {
     "description": "Total number of flips in this session, under the per-face tally. Cleared when the screen is left.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+
+  "sectionDice": "Dice",
+  "@sectionDice": {
+    "description": "Name of the dice section, in the section menu at the top right of every screen."
+  },
+  "roll": "Roll",
+  "@roll": {
+    "description": "Button that starts a die roll. The coin's equivalent is 'Flip'."
+  },
+  "tapToRoll": "Tap the die to roll",
+  "@tapToRoll": {
+    "description": "Hint shown under the die before the first roll. The die itself is the tap target; the Roll button below is the second way in."
+  },
+  "rollCount": "{count, plural, =1{1 roll} other{{count} rolls}}",
+  "@rollCount": {
+    "description": "Total number of rolls in this session, under the per-face tally. Cleared when the screen is left or another die is chosen.",
     "placeholders": {
       "count": {
         "type": "int",

@@ -82,7 +82,7 @@ class CoinFace extends StatelessWidget {
                         // Scaled down by the FittedBox to whatever the coin
                         // actually is; the legacy code fed this number
                         // straight to an sp setter and clipped the glyph.
-                        fontSize: Dimens.coinText,
+                        fontSize: Dimens.tossText,
                         height: 1,
                         fontWeight: FontWeight.w600,
                         color: scheme.onSurface,

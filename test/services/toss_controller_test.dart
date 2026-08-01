@@ -91,20 +91,84 @@ void main() {
       }
     });
 
-    test('six faces cycle 0…5 and settle inside the range', () {
-      // The die this controller does not know about yet. Nothing in here is
-      // coin-shaped, and this is the test that says so.
-      for (var seed = 0; seed < 10; seed++) {
-        final controller = TossController(faces: 6, random: Random(seed));
+    test(
+      'a die shows faces in range, and never the same one twice running',
+      () {
+        for (final sides in [6, 20]) {
+          for (var seed = 0; seed < 10; seed++) {
+            final controller = TossController(
+              faces: sides,
+              random: Random(seed),
+            );
+            final faces = runToss(controller);
+            controller.dispose();
+
+            for (var i = 0; i < faces.length; i++) {
+              expect(
+                faces[i],
+                inInclusiveRange(0, sides - 1),
+                reason: 'd$sides',
+              );
+              // A repeat would read as the object sticking mid-toss.
+              if (i > 0) {
+                expect(
+                  faces[i],
+                  isNot(faces[i - 1]),
+                  reason: 'd$sides seed $seed',
+                );
+              }
+            }
+          }
+        }
+      },
+    );
+
+    test('a die tumbles rather than counting up to its result', () {
+      // The defect this replaced: `(face + 1) % faces` is invisible on a coin —
+      // it *is* the legacy 0, 1, 0, 1 — but on a d20 it showed 1, 2, 3, 4 …
+      // running up to an answer, which gives away that the answer was already
+      // decided.
+      for (final sides in [12, 20]) {
+        for (var seed = 0; seed < 10; seed++) {
+          final controller = TossController(faces: sides, random: Random(seed));
+          final faces = runToss(controller);
+          controller.dispose();
+
+          final ascending = [
+            for (var i = 0; i < faces.length; i++) (faces.first + i) % sides,
+          ];
+          expect(faces, isNot(ascending), reason: 'd$sides seed $seed');
+        }
+      }
+    });
+
+    test('the last face before a die settles is not the settled value', () {
+      // Otherwise the final change is invisible and the toss looks like it
+      // stopped a beat early.
+      for (var seed = 0; seed < 25; seed++) {
+        final controller = TossController(faces: 20, random: Random(seed));
         final faces = runToss(controller);
         controller.dispose();
 
-        expect(faces.first, 0, reason: 'seed $seed');
-        for (var i = 1; i < faces.length - 1; i++) {
-          expect(faces[i], i % 6, reason: 'seed $seed, face $i');
-        }
-        expect(faces.last, inInclusiveRange(0, 5), reason: 'seed $seed');
+        expect(
+          faces[faces.length - 2],
+          isNot(faces.last),
+          reason: 'seed $seed',
+        );
       }
+    });
+
+    test('a die draws over its whole range, not a corner of it', () {
+      // A weak uniformity guard: across a few hundred drawn faces every side of
+      // a d20 should come up, which a biased or truncated draw would fail.
+      final seen = <int>{};
+      for (var seed = 0; seed < 40; seed++) {
+        final controller = TossController(faces: 20, random: Random(seed));
+        seen.addAll(runToss(controller));
+        controller.dispose();
+      }
+
+      expect(seen.length, 20);
     });
 
     test('settles on the value decided up front', () {

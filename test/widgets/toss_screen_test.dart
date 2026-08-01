@@ -6,6 +6,8 @@ import 'package:random_sequence_generator/models/toss_kind.dart';
 import 'package:random_sequence_generator/screens/toss_screen.dart';
 import 'package:random_sequence_generator/services/toss_controller.dart';
 import 'package:random_sequence_generator/widgets/toss/coin_face.dart';
+import 'package:random_sequence_generator/widgets/toss/die_face.dart';
+import 'package:random_sequence_generator/widgets/toss/die_selector.dart';
 
 import '../support/pump_app.dart';
 
@@ -32,6 +34,13 @@ bool flipEnabled(WidgetTester tester) =>
 Finder get coinDigit =>
     find.descendant(of: find.byType(CoinFace), matching: find.byType(Text));
 
+/// The numeral on a die. Absent on the d6, which wears pips instead.
+Finder get dieValue =>
+    find.descendant(of: find.byType(DieFace), matching: find.byType(Text));
+
+bool chipSelected(WidgetTester tester, String label) =>
+    tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, label)).selected;
+
 /// The hint keeps its place through the first toss so the coin does not resize
 /// mid-flip, so "gone" during that toss means invisible, not absent.
 double hintOpacity(WidgetTester tester) => tester
@@ -48,7 +57,10 @@ void main() {
     testWidgets('starts on the hint with Flip enabled', (tester) async {
       await tester.pumpApp(TossScreen(controller: coinController(1)));
 
-      expect(find.text('Launch Coin'), findsOneWidget);
+      // The app bar carries the app's name; the section menu beside it is what
+      // says the coin is what is on screen.
+      expect(find.text('Random Sequence Generator'), findsOneWidget);
+      expect(find.text('Coin'), findsOneWidget);
       expect(find.text('Tap the coin to flip'), findsOneWidget);
       expect(flipEnabled(tester), isTrue);
       // The coin is on screen from the start, dimmed — the hint tells the user
@@ -235,6 +247,137 @@ void main() {
       await advanceToss(tester);
 
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('TossScreen dice', () {
+    testWidgets('the dice section opens on a d6 and offers all six', (
+      tester,
+    ) async {
+      await tester.pumpApp(const TossScreen(kind: TossKind.d6));
+
+      expect(find.byType(DieSelector), findsOneWidget);
+      for (final label in ['D4', 'D6', 'D8', 'D10', 'D12', 'D20']) {
+        expect(find.widgetWithText(ChoiceChip, label), findsOneWidget);
+      }
+      expect(chipSelected(tester, 'D6'), isTrue);
+      expect(chipSelected(tester, 'D20'), isFalse);
+      // A d6 wears pips, not a numeral.
+      expect(find.byType(DieFace), findsOneWidget);
+      expect(dieValue, findsNothing);
+    });
+
+    testWidgets('the coin has no picker — one option is not a picker', (
+      tester,
+    ) async {
+      await tester.pumpApp(TossScreen(controller: coinController(1)));
+
+      expect(find.byType(DieSelector), findsNothing);
+    });
+
+    testWidgets('a die rolls rather than flipping', (tester) async {
+      await tester.pumpApp(const TossScreen(kind: TossKind.d8));
+
+      expect(find.text('Tap the die to roll'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Roll'), findsOneWidget);
+      expect(find.text('Flip'), findsNothing);
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      expect(find.text('1 roll'), findsOneWidget);
+      expect(find.textContaining('flip'), findsNothing);
+    });
+
+    testWidgets('a settled die shows a value between one and its face count', (
+      tester,
+    ) async {
+      await tester.pumpApp(const TossScreen(kind: TossKind.d20));
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      final value = int.parse(tester.widget<Text>(dieValue).data!);
+      // The controller counts faces from zero; a die is numbered from one, and
+      // a die that can roll a 0 or a 21 is not a die.
+      expect(value, inInclusiveRange(1, 20));
+    });
+
+    testWidgets('the tally is numbered from one, with a row per face', (
+      tester,
+    ) async {
+      await tester.pumpApp(const TossScreen(kind: TossKind.d8));
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      expect(find.textContaining('×'), findsNWidgets(8));
+      expect(find.textContaining(RegExp(r'^0 ×')), findsNothing);
+      expect(find.textContaining(RegExp(r'^1 ×')), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^8 ×')), findsOneWidget);
+    });
+
+    testWidgets('choosing another die resets the session and the face count', (
+      tester,
+    ) async {
+      await tester.pumpApp(const TossScreen(kind: TossKind.d6));
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+      expect(find.text('1 roll'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'D20'));
+      await tester.pumpAndSettle();
+
+      // A d20's counts are not a d6's, so the tally goes with the controller
+      // and the hint takes its place again.
+      expect(chipSelected(tester, 'D20'), isTrue);
+      expect(find.textContaining('×'), findsNothing);
+      expect(find.text('Tap the die to roll'), findsOneWidget);
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      expect(find.textContaining('×'), findsNWidgets(20));
+      expect(
+        int.parse(tester.widget<Text>(dieValue).data!),
+        lessThanOrEqualTo(20),
+      );
+    });
+
+    testWidgets('a d20 in landscape does not overflow', (tester) async {
+      // The same guard the coin carries, with the picker and twenty tally
+      // entries added above and below the die.
+      tester.view.physicalSize = const Size(640, 360);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpApp(const TossScreen(kind: TossKind.d20));
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      expect(tester.takeException(), isNull);
+      final button = tester.getRect(
+        find.widgetWithText(ElevatedButton, 'Roll'),
+      );
+      expect(button.bottom, lessThanOrEqualTo(360));
+      expect(tester.getRect(find.byType(DieFace)).height, greaterThan(0));
+    });
+
+    testWidgets('every chip fits a 320dp-wide screen', (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpApp(const TossScreen(kind: TossKind.d6));
+
+      expect(tester.takeException(), isNull);
+      for (final label in ['D4', 'D6', 'D8', 'D10', 'D12', 'D20']) {
+        final chip = tester.getRect(find.widgetWithText(ChoiceChip, label));
+        expect(chip.left, greaterThanOrEqualTo(0));
+        expect(chip.right, lessThanOrEqualTo(320));
+      }
     });
   });
 }
