@@ -2,8 +2,7 @@ name: random_sequence_generator
 description: "Random sequences, passwords, coin flips, and dice"
 publish_to: 'none'
 
-# Legacy was 2.2.2 / versionCode 222, so 300 keeps Play upgrades valid.
-version: 3.0.0+300
+version: 3.0.1+301
 
 environment:
   sdk: ^3.12.2
