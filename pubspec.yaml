@@ -1,5 +1,5 @@
 name: random_sequence_generator
-description: "Random sequence and password generator"
+description: "Random sequences, passwords, coin flips, and dice"
 publish_to: 'none'
 
 # Legacy was 2.2.2 / versionCode 222, so 300 keeps Play upgrades valid.

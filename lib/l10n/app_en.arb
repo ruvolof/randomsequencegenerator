@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "titleActivityRsgMain": "Random Sequence Generator",
+  "titleActivityRsgMain": "Everything Random",
   "@titleActivityRsgMain": {
     "description": "Title of the main screen."
   },
