@@ -36,8 +36,12 @@ flutter:
 
 flutter_launcher_icons:
   android: "ic_launcher"
-  ios: false
+  ios: true
   image_path: "assets/icon/app_icon.png"
   adaptive_icon_background: "#333333"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  # iOS rejects icons with an alpha channel. The source has transparent
+  # corners, so flatten them onto the icon's own black field rather than the
+  # default white, which would show as wedges outside iOS's squircle mask.
   remove_alpha_ios: true
+  background_color_ios: "#000000"
