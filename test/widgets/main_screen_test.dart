@@ -161,6 +161,64 @@ void main() {
       expect(find.widgetWithText(TextField, '32'), findsOneWidget);
     });
 
+    group('an open keyboard', () {
+      // Tall enough to bury the bottom bar if nothing lifted it, which is what
+      // shipped: Scaffold pins that slot to the bottom of the screen and never
+      // looks at the view insets.
+      const keyboard = 400.0;
+      const screen = Size(400, 800);
+
+      /// Pumps the screen with a keyboard of [keyboard] logical pixels open.
+      Future<void> pumpWithKeyboard(WidgetTester tester) async {
+        tester.view
+          ..physicalSize = screen
+          ..devicePixelRatio = 1
+          ..viewInsets = const FakeViewPadding(bottom: keyboard);
+        addTearDown(tester.view.reset);
+        await tester.pumpApp(mainScreen());
+      }
+
+      testWidgets('does not cover Create', (tester) async {
+        await pumpWithKeyboard(tester);
+
+        final create = tester.getRect(find.widgetWithText(ElevatedButton, 'Create'));
+        expect(create.bottom, lessThanOrEqualTo(screen.height - keyboard));
+      });
+
+      testWidgets('does not cover the action row either', (tester) async {
+        await pumpWithKeyboard(tester);
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Create'));
+        await tester.pump();
+
+        // The actions sit above Create in the same bar, so the topmost of them
+        // clearing the keyboard means the whole bar does.
+        final copy = tester.getRect(find.byIcon(Icons.content_copy));
+        expect(copy.bottom, lessThanOrEqualTo(screen.height - keyboard));
+      });
+
+      testWidgets('closes when a tap lands outside the length field', (
+        tester,
+      ) async {
+        await pumpWithKeyboard(tester);
+
+        // The body is short once the bar and the keyboard have taken their
+        // share of a 400x800 screen, so the field starts below the fold.
+        final length = find.widgetWithText(TextField, '32');
+        await tester.ensureVisible(length);
+        await tester.pump();
+
+        await tester.tap(length);
+        await tester.pump();
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The Options heading is inert background. It is the only way out on
+        // iOS, where the number pad carries no Return key to dismiss with.
+        await tester.tap(find.text('Options'));
+        await tester.pump();
+        expect(tester.testTextInput.isVisible, isFalse);
+      });
+    });
+
     testWidgets('Class reveals the checkboxes and Manual the text field', (
       tester,
     ) async {

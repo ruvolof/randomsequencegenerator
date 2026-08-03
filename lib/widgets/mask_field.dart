@@ -32,6 +32,9 @@ class MaskField extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
+      // Tapping the background dismisses the keyboard, which Flutter does not
+      // do for touch on mobile. See `LengthField` for why.
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
       // A mask is syntax, not prose: autocapitalizing or "correcting" it would
       // silently change what it generates.
       autocorrect: false,

@@ -40,6 +40,13 @@ class LengthField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: TextInputType.number,
+      // Flutter's default tap-outside handler deliberately ignores touch events
+      // on Android and iOS, so a field otherwise keeps focus until some other
+      // control takes it. That is merely tedious on Android, where Back closes
+      // the keyboard — but iOS renders `TextInputType.number` as the plain
+      // number pad, which has no Return key to dismiss with either, so without
+      // this the keyboard cannot be closed at all.
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
       textAlign: TextAlign.start,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       onChanged: (value) => onChanged(parse(value)),

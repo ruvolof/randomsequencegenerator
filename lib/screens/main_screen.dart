@@ -242,57 +242,75 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       // Pinned to the bottom rather than sitting in the middle of the content:
-      // the screen's primary action stays under the thumb, stays put while the
-      // result scrolls, and rides above the keyboard in Manual mode.
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Dimens.mainPadding),
-          // heightFactor keeps the bar exactly as tall as the button. Without
-          // it Center fills the whole Scaffold and leaves the body no height.
-          child: Center(
-            heightFactor: 1,
-            child: SizedBox(
-              // Same width as the action buttons above it, so copy, save and
-              // share line up with Create's left edge, centre and right edge by
-              // construction.
-              width: Dimens.createButton,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Pinned here above Create rather than in the scrolling body:
-                  // the actions stay put while the result scrolls. Hidden until
-                  // the first successful generation, and hidden again whenever
-                  // the pool comes out empty — as in the legacy screen.
-                  if (result != null) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconActionButton(
-                          icon: Icons.content_copy,
-                          label: l10n.copy,
-                          onPressed: () =>
-                              TextActions.copyToClipboard(context, result.text),
-                        ),
-                        IconActionButton(
-                          icon: Icons.save,
-                          label: l10n.save,
-                          onPressed: _save,
-                        ),
-                        IconActionButton(
-                          icon: Icons.share,
-                          label: l10n.send,
-                          onPressed: () =>
-                              TextActions.shareText(context, result.text),
-                        ),
-                      ],
+      // the screen's primary action stays under the thumb and stays put while
+      // the result scrolls.
+      //
+      // Scaffold lays this slot out at `size.height - barHeight` and never
+      // consults the view insets — `resizeToAvoidBottomInset` shrinks only the
+      // body — so an open keyboard would bury Create with no way to reach it.
+      // Padding the bar by the inset lifts it clear, and the body still shrinks
+      // correctly: Scaffold sizes it against `max(viewInsets.bottom,
+      // barHeight)`, so the keyboard is counted once rather than twice.
+      //
+      // The inset goes outside the SafeArea, which contributes nothing anyway
+      // while the keyboard covers the home indicator.
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(Dimens.mainPadding),
+            // heightFactor keeps the bar exactly as tall as the button. Without
+            // it Center fills the whole Scaffold and leaves the body no height.
+            child: Center(
+              heightFactor: 1,
+              child: SizedBox(
+                // Same width as the action buttons above it, so copy, save and
+                // share line up with Create's left edge, centre and right edge
+                // by construction.
+                width: Dimens.createButton,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Pinned here above Create rather than in the scrolling
+                    // body: the actions stay put while the result scrolls.
+                    // Hidden until the first successful generation, and hidden
+                    // again whenever the pool comes out empty — as in the
+                    // legacy screen.
+                    if (result != null) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconActionButton(
+                            icon: Icons.content_copy,
+                            label: l10n.copy,
+                            onPressed: () => TextActions.copyToClipboard(
+                              context,
+                              result.text,
+                            ),
+                          ),
+                          IconActionButton(
+                            icon: Icons.save,
+                            label: l10n.save,
+                            onPressed: _save,
+                          ),
+                          IconActionButton(
+                            icon: Icons.share,
+                            label: l10n.send,
+                            onPressed: () =>
+                                TextActions.shareText(context, result.text),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    ElevatedButton(
+                      onPressed: _canCreate ? _create : null,
+                      child: Text(l10n.create),
                     ),
-                    const SizedBox(height: 8),
                   ],
-                  ElevatedButton(
-                    onPressed: _canCreate ? _create : null,
-                    child: Text(l10n.create),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -357,6 +375,9 @@ class _ModeOptions extends StatelessWidget {
       GenerationMode.manual => [
         TextField(
           controller: manualController,
+          // Tapping the background dismisses the keyboard, which Flutter does
+          // not do for touch on mobile. See `LengthField` for why.
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           decoration: InputDecoration(hintText: l10n.manualHint),
         ),
       ],
