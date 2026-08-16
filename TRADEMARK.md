@@ -1,6 +1,6 @@
 # Trademark and Branding Policy
 
-**Version 1.0 — effective 2026-08-01**
+**Version 1.1 — effective 2026-08-16**
 
 The source code in this repository is licensed under the GNU General Public
 License, version 3 (see [`LICENSE`](LICENSE)). That license governs the code,
@@ -31,7 +31,7 @@ Francesco Ruvolo, all rights reserved:
 
 **1. Names and marks**
 
-- The app name **"Everything Random"**
+- The app name **"Random Sequence Generator"**
 - The publisher name **"Werebug"** and any logo or wordmark using it
 - Any name confusingly similar to the above
 
@@ -44,9 +44,9 @@ Francesco Ruvolo, all rights reserved:
 
 **3. Application namespace**
 
-- The Android application identifier `com.werebug.randomsequencegenerator`, the
-  iOS bundle identifier `com.werebug.everythingrandom`, and any identifier under
-  the `com.werebug.` namespace
+- The application identifier `com.werebug.randomsequencegenerator`, used as the
+  Android application id and the iOS bundle id, and any identifier under the
+  `com.werebug.` namespace
 
 ## What you may do
 
@@ -63,18 +63,18 @@ Under the GPLv3, without asking anyone:
   Francesco Ruvolo
 
 Additionally, **nominative use is expressly permitted**: you may use the name
-"Everything Random" truthfully to refer to this project — in documentation,
-changelogs, articles, reviews, comparisons, package descriptions, or a statement
-such as *"MyFork is a fork of Everything Random"* — as long as you do not imply
-sponsorship, endorsement, or official status.
+"Random Sequence Generator" truthfully to refer to this project — in
+documentation, changelogs, articles, reviews, comparisons, package descriptions,
+or a statement such as *"MyFork is a fork of Random Sequence Generator"* — as
+long as you do not imply sponsorship, endorsement, or official status.
 
 ## What requires prior written permission
 
 - Publishing a build of this software, modified or not, to any app store,
   website, package repository, or other distribution channel using the name
-  "Everything Random", the project's icon, or branding confusingly similar to
-  either
-- Using "Everything Random" in a store listing title, developer name,
+  "Random Sequence Generator", the project's icon, or branding confusingly
+  similar to either
+- Using "Random Sequence Generator" in a store listing title, developer name,
   description, keywords, or other metadata in a way likely to cause confusion
   with the official release
 - Using the reserved application identifier or the `com.werebug.` namespace in a
@@ -102,9 +102,10 @@ This project uses an open source license so the code stays transparent,
 auditable, and reusable.
 
 The project's *identity* is reserved for a different reason: so that a user
-searching an app store for "Everything Random" lands on a build the author
-stands behind, rather than a re-upload carrying ads, trackers, or malicious code
-under the same name and icon. Reserving the name protects users, not the code.
+searching an app store for "Random Sequence Generator" lands on a build the
+author stands behind, rather than a re-upload carrying ads, trackers, or
+malicious code under the same name and icon. Reserving the name protects users,
+not the code.
 
 ## Reporting misuse
 
@@ -135,6 +136,7 @@ should appear in `README.md`:
 > the terms of the GNU General Public License, version 3, as published by the
 > Free Software Foundation. See [`LICENSE`](LICENSE) for the full text.
 >
-> The name "Everything Random", the app icon, and the project's other branding
-> are not covered by that license. They are reserved under the supplementary
-> terms in [`TRADEMARK.md`](TRADEMARK.md), as permitted by GPLv3 section 7.
+> The name "Random Sequence Generator", the app icon, and the project's other
+> branding are not covered by that license. They are reserved under the
+> supplementary terms in [`TRADEMARK.md`](TRADEMARK.md), as permitted by GPLv3
+> section 7.

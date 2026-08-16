@@ -1,4 +1,4 @@
-# Everything Random
+# Random Sequence Generator
 
 A small, offline randomness toolkit for Android and iOS: random sequences, coin flips, and dice.
 
@@ -29,9 +29,10 @@ This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License, version 3, as published by the Free
 Software Foundation. See [`LICENSE`](LICENSE) for the full text.
 
-The name "Everything Random", the app icon, and the project's other branding are
-not covered by that license. They are reserved under the supplementary terms in
-[`TRADEMARK.md`](TRADEMARK.md), as permitted by GPLv3 section 7.
+The name "Random Sequence Generator", the app icon, and the project's other
+branding are not covered by that license. They are reserved under the
+supplementary terms in [`TRADEMARK.md`](TRADEMARK.md), as permitted by GPLv3
+section 7.
 
 You are free to fork this project and publish your own build — just give it a
 different name, icon, and application identifier, and make clear that it is not

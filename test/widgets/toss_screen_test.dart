@@ -59,7 +59,7 @@ void main() {
 
       // The app bar carries the app's name; the section menu beside it is what
       // says the coin is what is on screen.
-      expect(find.text('Everything Random'), findsOneWidget);
+      expect(find.text('Random Sequence Generator'), findsOneWidget);
       expect(find.text('Coin'), findsOneWidget);
       expect(find.text('Tap the coin to flip'), findsOneWidget);
       expect(flipEnabled(tester), isTrue);
