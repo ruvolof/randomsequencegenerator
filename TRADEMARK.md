@@ -1,33 +1,37 @@
 # Trademark and Branding Policy
 
-**Version 1.1 — effective 2026-08-16**
+**Version 2.0 — effective 2026-08-17**
 
-The source code in this repository is licensed under the GNU General Public
-License, version 3 (see [`LICENSE`](LICENSE)). That license governs the code,
-and nothing in this document takes away any right the GPL grants you.
+The source code in this repository is licensed under the Apache License, version
+2.0 (see [`LICENSE`](LICENSE)). That license governs the code, and nothing in
+this document takes away any right it grants you.
 
-This document covers something the GPL deliberately does *not* cover: the
-project's **name and identity**.
+This document covers something the Apache License deliberately does *not* cover:
+the project's **name and identity**.
 
-## Relationship to the GPL
+## Relationship to the Apache License
 
-This policy is a supplementary term under **GPLv3 section 7**, which expressly
-permits the following additions to a GPL'd work:
+This policy does not add a condition to the license — it describes rights the
+license never granted in the first place. **Section 6** of the Apache License
+says so directly:
 
-- **7(b)** — requiring preservation of author attributions;
-- **7(c)** — requiring that modified versions be marked as different from the
-  original;
-- **7(e)** — *"Declining to grant rights under trademark law for use of some
-  trade names, trademarks, or service marks."*
+> *"This License does not grant permission to use the trade names, trademarks,
+> service marks, or product names of the Licensor, except as required for
+> reasonable and customary use in describing the origin of the Work."*
 
-Because GPLv3 anticipates exactly these terms, this policy is **not** a "further
-restriction" under section 10 and does not conflict with the license. You always
-retain the full GPLv3 grant over the code itself.
+So the split below is the license's own default, spelled out. The code grant in
+sections 2 and 3 — copyright and patents — is unaffected, and you always retain
+it in full.
+
+Two related obligations already live in the license itself, and this policy does
+not extend them: **section 4(b)** requires modified files to carry prominent
+notices of change, and **section 4(d)** requires the [`NOTICE`](NOTICE) file's
+attribution text to travel with redistributions.
 
 ## What is reserved
 
-The following are **not** licensed under the GPL and remain the property of
-Francesco Ruvolo, all rights reserved:
+The following are **not** licensed under the Apache License and remain the
+property of Francesco Ruvolo, all rights reserved:
 
 **1. Names and marks**
 
@@ -50,13 +54,14 @@ Francesco Ruvolo, all rights reserved:
 
 ## What you may do
 
-Under the GPLv3, without asking anyone:
+Under the Apache License, without asking anyone:
 
 - Clone, read, audit, study, and modify this source code
 - Build the app from source **for your own use**, including with the original
   name and icon intact — a personal build is not a distribution, and you should
   not have to patch the repo just to run it
-- Redistribute the source code, in whole or in part, under the GPLv3
+- Redistribute the source code, in whole or in part, under the Apache License,
+  keeping the `LICENSE` and [`NOTICE`](NOTICE) files with it
 - Fork the project and distribute your fork **under a different name, icon, and
   application identifier**, with attribution to this project and a clear
   statement that it is an independent, unofficial fork not associated with
@@ -95,6 +100,7 @@ If you distribute a fork, change all of the following:
 | Bundle identifier | Xcode project / `ios/Runner.xcodeproj` |
 | Icon | `assets/icon/` — replace the source images, then re-run `flutter pub run flutter_launcher_icons` |
 | Attribution | Your README, stating the fork is unofficial and linking back here |
+| Notices | Keep `LICENSE` and `NOTICE`, and mark the files you changed (Apache §4(b), §4(d)) |
 
 ## Why this split exists
 
@@ -123,20 +129,24 @@ usually a much faster route to takedown than contacting the author first:
 ## Changes
 
 This policy may be updated. Changes apply going forward and do not retroactively
-revoke any GPLv3 rights already granted for code you have received.
+revoke any Apache License rights already granted for code you have received.
+
+Versions of this project released before 2026-08-17 were licensed under the GNU
+General Public License, version 3. That grant is irrevocable for the code as it
+stood then: anyone holding a copy received under the GPL keeps every right it
+gave them.
 
 ---
 
 ## Notice to include elsewhere
 
-For the section 7 terms above to travel with the code, the following notice
-should appear in `README.md`:
+The following notice should appear in `README.md`:
 
-> This program is free software: you can redistribute it and/or modify it under
-> the terms of the GNU General Public License, version 3, as published by the
-> Free Software Foundation. See [`LICENSE`](LICENSE) for the full text.
+> Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE) for
+> the full text and [`NOTICE`](NOTICE) for the attribution that travels with
+> redistributions.
 >
 > The name "Random Sequence Generator", the app icon, and the project's other
-> branding are not covered by that license. They are reserved under the
-> supplementary terms in [`TRADEMARK.md`](TRADEMARK.md), as permitted by GPLv3
-> section 7.
+> branding are not covered by that license — section 6 of the Apache License
+> grants no trademark rights. They are reserved under
+> [`TRADEMARK.md`](TRADEMARK.md).
