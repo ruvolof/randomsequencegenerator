@@ -2,11 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:random_sequence_generator/models/die_mesh.dart';
 import 'package:random_sequence_generator/models/toss_kind.dart';
 import 'package:random_sequence_generator/screens/toss_screen.dart';
 import 'package:random_sequence_generator/services/toss_controller.dart';
 import 'package:random_sequence_generator/widgets/toss/coin_face.dart';
-import 'package:random_sequence_generator/widgets/toss/die_face.dart';
+import 'package:random_sequence_generator/widgets/toss/die_3d.dart';
 import 'package:random_sequence_generator/widgets/toss/die_selector.dart';
 
 import '../support/pump_app.dart';
@@ -34,9 +35,21 @@ bool flipEnabled(WidgetTester tester) =>
 Finder get coinDigit =>
     find.descendant(of: find.byType(CoinFace), matching: find.byType(Text));
 
-/// The numeral on a die. Absent on the d6, which wears pips instead.
-Finder get dieValue =>
-    find.descendant(of: find.byType(DieFace), matching: find.byType(Text));
+/// The value a die is showing, as a screen reader hears it. The numerals are
+/// painted, so this is also the only place the value exists as text.
+int dieValue(WidgetTester tester) =>
+    int.parse(tester.getSemantics(find.byType(Die3D)).label);
+
+DieMeshPainter diePainter(WidgetTester tester) =>
+    tester
+            .widget<CustomPaint>(
+              find.descendant(
+                of: find.byType(Die3D),
+                matching: find.byType(CustomPaint),
+              ),
+            )
+            .painter!
+        as DieMeshPainter;
 
 bool chipSelected(WidgetTester tester, String label) =>
     tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, label)).selected;
@@ -263,8 +276,8 @@ void main() {
       expect(chipSelected(tester, 'D6'), isTrue);
       expect(chipSelected(tester, 'D20'), isFalse);
       // A d6 wears pips, not a numeral.
-      expect(find.byType(DieFace), findsOneWidget);
-      expect(dieValue, findsNothing);
+      expect(find.byType(Die3D), findsOneWidget);
+      expect(diePainter(tester).numerals, isEmpty);
     });
 
     testWidgets('the coin has no picker — one option is not a picker', (
@@ -297,7 +310,7 @@ void main() {
       await tester.tap(find.text('Roll'));
       await advanceToss(tester);
 
-      final value = int.parse(tester.widget<Text>(dieValue).data!);
+      final value = dieValue(tester);
       // The controller counts faces from zero; a die is numbered from one, and
       // a die that can roll a 0 or a 21 is not a die.
       expect(value, inInclusiveRange(1, 20));
@@ -339,10 +352,7 @@ void main() {
       await advanceToss(tester);
 
       expect(find.textContaining('×'), findsNWidgets(20));
-      expect(
-        int.parse(tester.widget<Text>(dieValue).data!),
-        lessThanOrEqualTo(20),
-      );
+      expect(dieValue(tester), lessThanOrEqualTo(20));
     });
 
     testWidgets('a d20 in landscape does not overflow', (tester) async {
@@ -362,7 +372,81 @@ void main() {
         find.widgetWithText(ElevatedButton, 'Roll'),
       );
       expect(button.bottom, lessThanOrEqualTo(360));
-      expect(tester.getRect(find.byType(DieFace)).height, greaterThan(0));
+      expect(tester.getRect(find.byType(Die3D)).height, greaterThan(0));
+    });
+
+    testWidgets('a rolled die comes to rest on the face it rolled', (
+      tester,
+    ) async {
+      final controller = TossController(
+        faces: TossKind.d20.faces,
+        random: Random(3),
+      );
+      addTearDown(controller.dispose);
+      await tester.pumpApp(
+        TossScreen(kind: TossKind.d20, controller: controller),
+      );
+
+      await tester.tap(find.text('Roll'));
+      await advanceToss(tester);
+
+      // What is announced is what was rolled, and what is drawn is that face
+      // turned to the viewer — the three cannot disagree.
+      final face = controller.face!;
+      expect(dieValue(tester), TossKind.d20.valueOf(face));
+      final die = tester.widget<Die3D>(find.byType(Die3D));
+      expect(
+        die.orientation.angleTo(
+          DieMesh.of(TossKind.d20).restingOrientation(face),
+        ),
+        closeTo(0, 1e-6),
+      );
+      // And every face in view carries its number, the result's included:
+      // the neighbours are context, not something to hide.
+      final rest = DieMesh.of(TossKind.d20).restingOrientation(face);
+      final inView = DieMesh.of(TossKind.d20).faces
+          .where((f) => DieMesh.legibility(rest.apply(f.normal).z) > 0)
+          .length;
+      expect(inView, greaterThan(1));
+      expect(
+        tester.renderObject(
+          find.descendant(
+            of: find.byType(Die3D),
+            matching: find.byType(CustomPaint),
+          ),
+        ),
+        paintsExactlyCountTimes(#drawParagraph, inView),
+      );
+    });
+
+    testWidgets('mid-roll the die is turning, not jumping between faces', (
+      tester,
+    ) async {
+      final controller = TossController(
+        faces: TossKind.d6.faces,
+        random: Random(5),
+      );
+      addTearDown(controller.dispose);
+      await tester.pumpApp(
+        TossScreen(kind: TossKind.d6, controller: controller),
+      );
+
+      await tester.tap(find.text('Roll'));
+      await tester.pump();
+      // The first face change lands after the first tick, and the turn to it
+      // takes as long as that face stays up; stop partway through it.
+      await tester.pump(TossController.firstTick);
+      await tester.pump(const Duration(milliseconds: 20));
+
+      final mesh = DieMesh.of(TossKind.d6);
+      final orientation = tester.widget<Die3D>(find.byType(Die3D)).orientation;
+      final nearest = [
+        for (var face = 0; face < mesh.faces.length; face++)
+          orientation.angleTo(mesh.restingOrientation(face)),
+      ].reduce(min);
+      expect(nearest, greaterThan(0.05));
+
+      await advanceToss(tester);
     });
 
     testWidgets('every chip fits a 320dp-wide screen', (tester) async {

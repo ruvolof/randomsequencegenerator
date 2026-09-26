@@ -12,9 +12,20 @@ import 'package:random_sequence_generator/services/toss_controller.dart';
 import 'package:random_sequence_generator/theme/app_theme.dart';
 import 'package:random_sequence_generator/widgets/result_display.dart';
 import 'package:random_sequence_generator/widgets/toss/coin_face.dart';
-import 'package:random_sequence_generator/widgets/toss/die_face.dart';
+import 'package:random_sequence_generator/widgets/toss/die_3d.dart';
 
 import '../support/pump_app.dart';
+
+DieMeshPainter diePainter(WidgetTester tester) =>
+    tester
+            .widget<CustomPaint>(
+              find.descendant(
+                of: find.byType(Die3D),
+                matching: find.byType(CustomPaint),
+              ),
+            )
+            .painter!
+        as DieMeshPainter;
 
 /// A colour no constant in the app is, so a widget rendering in it can only
 /// have read it from the theme it was given.
@@ -131,42 +142,36 @@ void main() {
         await tester.pump(const Duration(milliseconds: 25));
       }
 
-      expect(
-        colorOf(
-          tester,
-          find.descendant(
-            of: find.byType(DieFace),
-            matching: find.byType(Text),
-          ),
-        ),
-        probe,
-      );
+      // The numerals are painted, not Text widgets, so this reads the style
+      // they were laid out in — which is what reaches the screen.
+      final painter = diePainter(tester);
+      expect(painter.ink, probe);
+      expect(painter.numerals, isNotEmpty);
+      for (final numeral in painter.numerals.values) {
+        expect(numeral.text!.style!.color, probe);
+      }
     });
 
-    testWidgets('the die body and its rim come from the theme', (tester) async {
+    testWidgets('the die body and its edges come from the theme', (
+      tester,
+    ) async {
       // Same reason the coin is drawn: these come off the ColorScheme, and a
-      // bundled sprite sheet could not have passed this.
+      // bundled model or sprite sheet could not have passed this.
       await tester.pumpApp(
         const TossScreen(kind: TossKind.d12),
         theme: themeWithScheme(
-          (scheme) =>
-              scheme.copyWith(surfaceContainerHighest: probe, primary: probe),
+          (scheme) => scheme.copyWith(
+            surfaceContainerHighest: probe,
+            surfaceContainerLowest: probe,
+            primary: probe,
+          ),
         ),
       );
 
-      final body = tester
-          .widgetList<CustomPaint>(
-            find.descendant(
-              of: find.byType(DieFace),
-              matching: find.byType(CustomPaint),
-            ),
-          )
-          .map((paint) => paint.painter)
-          .whereType<DieBody>()
-          .single;
-
-      expect(body.fillFrom, probe);
-      expect(body.rim, probe.withValues(alpha: 0.55));
+      final painter = diePainter(tester);
+      expect(painter.fillFrom, probe);
+      expect(painter.fillTo, probe);
+      expect(painter.rim, probe.withValues(alpha: 0.55));
     });
 
     testWidgets('the die hint follows onSurfaceVariant', (tester) async {

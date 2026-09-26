@@ -181,7 +181,9 @@ void main() {
       testWidgets('does not cover Create', (tester) async {
         await pumpWithKeyboard(tester);
 
-        final create = tester.getRect(find.widgetWithText(ElevatedButton, 'Create'));
+        final create = tester.getRect(
+          find.widgetWithText(ElevatedButton, 'Create'),
+        );
         expect(create.bottom, lessThanOrEqualTo(screen.height - keyboard));
       });
 

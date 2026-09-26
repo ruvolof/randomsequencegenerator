@@ -143,6 +143,9 @@ class _TossScreenState extends State<TossScreen> {
                                       kind: _kind,
                                       face: face ?? 0,
                                       faceDuration: _controller.faceDuration,
+                                      // The face that arrives as the toss
+                                      // stops is the one it lands on.
+                                      settling: !_controller.isTossing,
                                       onTap: _controller.isTossing
                                           ? null
                                           : _controller.toss,
